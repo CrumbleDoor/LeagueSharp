@@ -50,7 +50,8 @@ namespace Bangplank
             // Harass Menu
             var harassMenu = new Menu("Harass", "bangplank.menu.harass");            
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetValue(true));
-            
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana for Q harass").SetValue(new Slider(30, 0, 100)));
+
             // Farm Menu
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetValue(true));
@@ -98,7 +99,7 @@ namespace Bangplank
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E, 1000);
             R = new Spell(SpellSlot.R);
-            Q.SetTargetted(0.5f, 1500f);
+            E.SetSkillshot(0.5f, 120f, 1500f, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(0.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             Game.OnUpdate += Logic;
             Drawing.OnDraw += Draw;
@@ -126,10 +127,20 @@ namespace Bangplank
         // Orbwalker Manager
         static void Logic(EventArgs args)
         {
+            
             if (Player.IsDead)
             {
                 return;
             }
+            if (GetBool("bangplank.menu.misc.wcleanser"))
+            {
+                CleanserManager();
+            }
+            if (GetBool("bangplank.menu.misc.wheal"))
+            {
+                HealManager();
+            }
+
             var activeOrbwalker = _orbwalker.ActiveMode;
             switch (activeOrbwalker)
             {
@@ -150,7 +161,16 @@ namespace Bangplank
 
         private static void Combo()
         {
-          
+            if (TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical) == null)
+            {
+                return;
+            }
+            else
+            {
+                {
+                    R.Cast(TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical), false, true);
+                }
+            }
             
         }
         private static void WaveClear()
@@ -164,16 +184,17 @@ namespace Bangplank
 
         private static void Mixed()
         {
-            
-        }
+            // Q harass
+            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Getslider("bangplank.menu.harass.qmana") >= Player.Mana && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
+            {
+                Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
+            }
 
-        private static void LastHit()
-        {
-            // LH Logic
+
+            // Q lasthit
             var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
 
-            // Q Last Hit
-            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Getslider("bangplank.menu.farm.qlhmana") >= Player.ManaPercent)
+            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Getslider("bangplank.menu.farm.qlhmana") >= Player.Mana)
             {
                 if (minions != null)
                 {
@@ -190,9 +211,42 @@ namespace Bangplank
                 }
             }
 
-
-
         }
+
+        private static void LastHit()
+        {
+            // LH Logic
+            var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
+
+            // Q Last Hit
+            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Getslider("bangplank.menu.farm.qlhmana") >= Player.Mana)
+            {
+                if (minions != null)
+                {
+                    foreach (var m in minions)
+                    {
+                        if (m != null)
+                        {
+                            if (m.Health <= Player.GetSpellDamage(m, SpellSlot.Q))
+                            {
+                                Q.CastOnUnit(m);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void HealManager()
+        {
+            
+        }
+
+        private static void CleanserManager()
+        {
+            
+        }
+
 
         // Get Values code
         private static bool GetBool(string name)
