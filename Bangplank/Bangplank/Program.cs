@@ -93,6 +93,7 @@ namespace Bangplank
             _menu.AddSubMenu(farmMenu);
             _menu.AddSubMenu(miscMenu);
                 miscMenu.AddSubMenu(barrelManagerMenu);
+                miscMenu.AddSubMenu(cleanserManagerMenu);
             _menu.AddSubMenu(drawingMenu);
             _menu.AddToMainMenu();
         }
