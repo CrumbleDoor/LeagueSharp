@@ -185,7 +185,7 @@ namespace Bangplank
         private static void Mixed()
         {
             // Q harass
-            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Getslider("bangplank.menu.harass.qmana") >= Player.Mana && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
+            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
             {
                 Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
@@ -194,7 +194,7 @@ namespace Bangplank
             // Q lasthit
             var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
 
-            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Getslider("bangplank.menu.farm.qlhmana") >= Player.Mana)
+            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
             {
                 if (minions != null)
                 {
@@ -219,7 +219,7 @@ namespace Bangplank
             var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
 
             // Q Last Hit
-            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Getslider("bangplank.menu.farm.qlhmana") >= Player.Mana)
+            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
             {
                 if (minions != null)
                 {
