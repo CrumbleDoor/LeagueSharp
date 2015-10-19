@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication.ExtendedProtection;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp.Common;
@@ -13,7 +14,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.5";
+        public static String Version = "1.0.1.7";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -32,7 +33,7 @@ namespace Bangplank
         private static void MenuIni()
         {
             // Main Menu
-            _menu = new Menu("BangPlank", "bangplank.menu", true);
+            _menu = new Menu("<font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font>", "bangplank.menu", true);
 
             // Orbwalker Menu
             var orbwalkerMenu = new Menu("Orbwalker", "bangplank.menu.orbwalker");
@@ -51,6 +52,11 @@ namespace Bangplank
             var harassMenu = new Menu("Harass", "bangplank.menu.harass");            
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana for Q harass").SetValue(new Slider(30, 0, 100)));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedqe", "Enabled"));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then"));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "it will E + Q to harass"));
+
 
             // Farm Menu
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
