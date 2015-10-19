@@ -170,10 +170,7 @@ namespace Bangplank
             {
                 Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.Red);
             }
-            if (LiveBarrels.Count == 1)
-            {
-                Drawing.DrawText(Player.Position.X, Player.Position.Y, System.Drawing.Color.DarkOrange, "1 barrel");
-            }
+          
         }
 
         // Orbwalker Manager
@@ -269,7 +266,7 @@ namespace Bangplank
 
 
             // Q
-            else if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
+            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null && !E.IsReady())
             {
                 Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
@@ -277,7 +274,7 @@ namespace Bangplank
 
             
 
-            else if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
+            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
             {
                 if (minions != null)
                 {
