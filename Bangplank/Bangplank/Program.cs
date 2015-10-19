@@ -170,7 +170,7 @@ namespace Bangplank
             {
                 Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.Red);
             }
-            if (LiveBarrels.Count == 1) Render.Circle.DrawCircle(Player.Position, 400, System.Drawing.Color.DarkOrange);
+            
         }
 
         // Orbwalker Manager
@@ -232,17 +232,34 @@ namespace Bangplank
 
         private static void Mixed()
         {
-            // Q lasthit minions
-            var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
-
-
-
             // harass
             var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+            // Q lasthit minions
+            var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
+            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana") && target == null)
+            {
+                if (minions != null)
+                {
+                    foreach (var m in minions)
+                    {
+                        if (m != null)
+                        {
+                            if (m.Health <= Player.GetSpellDamage(m, SpellSlot.Q))
+                            {
+                                Q.CastOnUnit(m);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+           
             // Extended EQ
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq"))
             {
                 if (LiveBarrels.Count == 0) return;
+
                 Keg nbar = NearestKeg(Player.ServerPosition.To2D());
                 if (nbar == null) return;
                 if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2)
@@ -277,22 +294,7 @@ namespace Bangplank
 
             
 
-            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
-            {
-                if (minions != null)
-                {
-                    foreach (var m in minions)
-                    {
-                        if (m != null)
-                        {
-                            if (m.Health <= Player.GetSpellDamage(m, SpellSlot.Q))
-                            {
-                                Q.CastOnUnit(m);
-                            }
-                        }
-                    }
-                }
-            }
+            
 
         }
 
