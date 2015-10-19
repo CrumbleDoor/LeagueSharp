@@ -24,7 +24,7 @@ namespace Bangplank
         private static List<Keg>  LiveBarrels = new List<Keg>();
 
         
-         private void Main(string[] args)
+         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
@@ -176,7 +176,7 @@ namespace Bangplank
             {
                 KillSteal();
             }
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled"))
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
             {
                 BarrelManager();
             }
@@ -202,7 +202,7 @@ namespace Bangplank
         {
             var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
 
-
+            // TODO
         }
         private static void WaveClear()
         {
