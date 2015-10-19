@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using LeagueSharp.Common;
 using SharpDX;
 
-
-
+// By baballev
+// Up to date for 5.20
 namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.27";
+        public static String Version = "1.0.1.28";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -274,7 +274,7 @@ namespace Bangplank
                         
                         //if (prediction.Distance(target.Position) < 410 && target.IsMoving)
                         //{
-                            //if (crbar.KegObj.Position.X - harassposition.X == 5) blabla
+                            if ((nbar.KegObj.Position.X - prediction.X < linkRange && nbar.KegObj.Position.X - prediction.X > -650) || (nbar.KegObj.Position.X - prediction.X < linkRange && nbar.KegObj.Position.Y - prediction.Y > -650) ) 
                             //{ }
                            // prediction = target.Position.Extend(prediction, explosionRange);                         
                                 
@@ -374,7 +374,7 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R) && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*7 && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
 
