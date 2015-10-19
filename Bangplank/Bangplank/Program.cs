@@ -13,7 +13,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.2";
+        public static String Version = "1.0.1.5";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -21,17 +21,12 @@ namespace Bangplank
         private static Spell Q, W, E, R;
         private static float explosionRange = 390;
         private static float linkRange = 650;
-        private List<Keg>  LiveBarrels = new List<Keg>();
+        private static List<Keg>  LiveBarrels = new List<Keg>();
 
         
-         void Main(string[] args)
+         private void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-            Game.OnUpdate += Logic;
-            Drawing.OnDraw += Draw;
-            GameObject.OnCreate += GameObjCreate;
-            GameObject.OnDelete += GameObjDelete;
-
         }
 
         private static void MenuIni()
@@ -125,11 +120,14 @@ namespace Bangplank
             Q.SetTargetted(0.25f, 2000f);
             E.SetSkillshot(0.5f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(0.8f, 200, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            
+            Game.OnUpdate += Logic;
+            Drawing.OnDraw += Draw;
+            GameObject.OnCreate += GameObjCreate;
+            GameObject.OnDelete += GameObjDelete;
 
         }
 
-        private void GameObjCreate(GameObject sender, EventArgs args)
+        private static void GameObjCreate(GameObject sender, EventArgs args)
         {
             if (sender.Name == "Keg")
             {
@@ -137,7 +135,7 @@ namespace Bangplank
             }
         }
 
-        private void GameObjDelete(GameObject sender, EventArgs args)
+        private static void GameObjDelete(GameObject sender, EventArgs args)
         {
             foreach (Keg keg in LiveBarrels.Where(keg => keg.KegObj.NetworkId == sender.NetworkId)) LiveBarrels.Remove(keg);
         }
@@ -336,7 +334,7 @@ namespace Bangplank
 
         private static void BarrelManager()
         {
-            return;
+           
             
         }
 
