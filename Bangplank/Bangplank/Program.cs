@@ -170,7 +170,7 @@ namespace Bangplank
             {
                 Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.Red);
             }
-            if (LiveBarrels.Count == 1) Render.Circle(Player.Position, 400, System.Drawing.Color.DarkOrange);
+            if (LiveBarrels.Count == 1) Render.Circle.DrawCircle(Player.Position, 400, System.Drawing.Color.DarkOrange);
         }
 
         // Orbwalker Manager
