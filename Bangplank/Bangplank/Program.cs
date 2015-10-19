@@ -13,19 +13,25 @@ namespace Bangplank
 {
     class Program
     {
-        public static String version = "1.0.1.2";
+        public static String Version = "1.0.1.2";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
         private static Orbwalking.Orbwalker _orbwalker;
         private static Spell Q, W, E, R;
-        private static float explosionRadius = 400;
+        private static float explosionRange = 390;
         private static float linkRange = 650;
+        private List<Keg>  LiveBarrels = new List<Keg>();
+
         
-        static void Main(string[] args)
+         void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-           
+            Game.OnUpdate += Logic;
+            Drawing.OnDraw += Draw;
+            GameObject.OnCreate += GameObjCreate;
+            GameObject.OnDelete += GameObjDelete;
+
         }
 
         private static void MenuIni()
@@ -55,12 +61,14 @@ namespace Bangplank
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetValue(true));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlhmana", "Minimum mana for Q lasthit").SetValue(new Slider(20, 0, 100)));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.ewc", "Use E to waveclear").SetValue(true));
                 
             // Misc Menu
             var miscMenu = new Menu("Misc", "bangplank.menu.misc");
                 // Barrel Manager Options
                 var barrelManagerMenu = new Menu("Barrel Manager","bangplank.menu.misc.barrelmanager");
                     barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.edisabled", "Block E usage").SetValue(false));
+                    
 
                 // Cleanser W Manager Menu
                 var cleanserManagerMenu = new Menu("W cleanser", "bangplank.menu.misc.cleansermanager");
@@ -79,6 +87,7 @@ namespace Bangplank
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healmin", "Health %").SetValue(new Slider(30, 0, 100)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum mana to heal").SetValue(new Slider(40, 0, 100)));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Q KillSteal").SetValue(true));
 
             // Drawing Menu
             Menu drawingMenu = new Menu("Drawing", "bangplank.menu.drawing");
@@ -98,26 +107,39 @@ namespace Bangplank
             _menu.AddToMainMenu();
         }
 
-        static void Game_OnGameLoad(EventArgs Args)
+        private static void Game_OnGameLoad(EventArgs Args)
         {
             if (ObjectManager.Player.ChampionName != championName)
             {
                 return;
             }
-            Game.PrintChat("<b><font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font></b> " + version + " loaded - By <font color='#6666FF'>Baballev</font>");
-            Game.PrintChat("Don't forget to <font color='#00CC00'>upvote</font> <b><font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font></b> in the AssemblyDB if you like it ^_^");
+            Game.PrintChat("<b><font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font></b> " + Version + " loaded - By <font color='#6666FF'>Baballev</font>");
+            Game.PrintChat("Don't forget to <font color='#00CC00'><b>Upvote</b></font> <b><font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font></b> in the AssemblyDB if you like it ^_^");
             MenuIni();
             Player = ObjectManager.Player;       
             // Spells ranges
-            Q = new Spell(SpellSlot.Q, 625);
+            Q = new Spell(SpellSlot.Q, 610);
             W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E, 1000);
+            E = new Spell(SpellSlot.E, 980);
             R = new Spell(SpellSlot.R);
-            E.SetSkillshot(0.5f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            R.SetSkillshot(0.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            Game.OnUpdate += Logic;
-            Drawing.OnDraw += Draw;
+            Q.SetTargetted(0.25f, 2000f);
+            E.SetSkillshot(0.5f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.8f, 200, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            
 
+        }
+
+        private void GameObjCreate(GameObject sender, EventArgs args)
+        {
+            if (sender.Name == "Keg")
+            {
+                LiveBarrels.Add(new Keg(sender as Obj_AI_Minion, System.Environment.TickCount));
+            }
+        }
+
+        private void GameObjDelete(GameObject sender, EventArgs args)
+        {
+            foreach (Keg keg in LiveBarrels.Where(keg => keg.KegObj.NetworkId == sender.NetworkId)) LiveBarrels.Remove(keg);
         }
 
         // Draw Manager
@@ -127,11 +149,11 @@ namespace Bangplank
             {
                 return;
             }
-            if (GetBool("bangplank.menu.drawing.q"))
+            if (GetBool("bangplank.menu.drawing.q") && Q.Level > 0)
             {
                 Render.Circle.DrawCircle(Player.Position, Q.Range, System.Drawing.Color.SteelBlue);
             }
-            if (GetBool("bangplank.menu.drawing.e"))
+            if (GetBool("bangplank.menu.drawing.e") && E.Level > 0)
             {
                 Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.Red);
             }
@@ -152,6 +174,14 @@ namespace Bangplank
             {
                 HealManager();
             }
+            if (GetBool("bangplank.menu.misc.qks"))
+            {
+                KillSteal();
+            }
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled"))
+            {
+                BarrelManager();
+            }
             var activeOrbwalker = _orbwalker.ActiveMode;
             switch (activeOrbwalker)
             {
@@ -171,8 +201,10 @@ namespace Bangplank
         }
 
         private static void Combo()
-        {         
-            // TODO
+        {
+            var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
+
+
         }
         private static void WaveClear()
         {
@@ -186,11 +218,19 @@ namespace Bangplank
         private static void Mixed()
         {
 
-            // TODO 
+            
             
 
-            // Q harass
-            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
+            // harass
+            // Extended QE
+            if (Q.IsReady() && E.IsReady())
+            {
+                
+            }
+
+
+            // Q
+            else if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
             {
                 Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
@@ -257,7 +297,7 @@ namespace Bangplank
         {
             // List of disable buffs
             if
-                (                
+                (W.IsReady() && (               
                 (Player.HasBuffOfType(BuffType.Charm) && GetBool("bangplank.menu.misc.cleansermanager.charm")) 
                 || (Player.HasBuffOfType(BuffType.Flee) && GetBool("bangplank.menu.misc.cleansermanager.flee"))
                 || (Player.HasBuffOfType(BuffType.Polymorph) && GetBool("bangplank.menu.misc.cleansermanager.polymorph"))
@@ -266,10 +306,38 @@ namespace Bangplank
                 || (Player.HasBuffOfType(BuffType.Taunt) && GetBool("bangplank.menu.misc.cleansermanager.taunt"))
                 || (Player.HasBuff("summonerexhaust") && GetBool("bangplank.menu.misc.cleansermanager.exhaust"))
                 || (Player.HasBuffOfType(BuffType.Suppression) && GetBool("bangplank.menu.misc.cleansermanager.suppression"))
-                )              
+                ))              
             {
                 W.Cast();
             }
+        }
+
+        private static void KillSteal()
+        {
+            var kstarget = HeroManager.Enemies;
+
+            if (Q.IsReady())
+            {
+                if (kstarget != null)
+                {
+                    foreach (var ks in kstarget)
+                    {
+                        if (ks != null)
+                        {
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q))
+                            {
+                                Q.CastOnUnit(ks);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void BarrelManager()
+        {
+            return;
+            
         }
 
         // Get Values code
@@ -281,7 +349,20 @@ namespace Bangplank
         {
             return _menu.Item(itemname).GetValue<Slider>().Value;
         }
+    }
 
+    internal class Keg
+    {
+        public Obj_AI_Minion KegObj;
+        public float Ticks;
+
+        public Keg(Obj_AI_Minion obj, int tickCount)
+        {
+            KegObj = obj;
+            Ticks = tickCount;
+        }
 
     }
+
+
 }
