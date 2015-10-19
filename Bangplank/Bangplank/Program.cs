@@ -137,7 +137,7 @@ namespace Bangplank
 
         private static void GameObjCreate(GameObject sender, EventArgs args)
         {
-            if (sender.Name == "Keg")
+            if (sender.Name == "Barrel")
             {
                 LiveBarrels.Add(new Keg(sender as Obj_AI_Minion));
             }
@@ -170,7 +170,7 @@ namespace Bangplank
             {
                 Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.Red);
             }
-          
+            if (LiveBarrels.Count == 1) Render.Circle(Player.Position, 400, System.Drawing.Color.DarkOrange);
         }
 
         // Orbwalker Manager
@@ -261,7 +261,7 @@ namespace Bangplank
                                // {
                                     E.Cast(prediction);
                                // }                                                                             
-                            Q.CastOnUnit(nbar.KegObj);
+                            Q.Cast(nbar.KegObj);
                        // }
                     }
                 }
