@@ -243,22 +243,25 @@ namespace Bangplank
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq"))
             {
                 if (LiveBarrels.Count == 0) return;
-                Keg crbar = NearestReadyKeq(Player.ServerPosition.To2D());
-                if (crbar == null) return;
-                if (Player.ServerPosition.Distance(crbar.KegObj.Position) < Player.AttackRange && crbar.KegObj.IsTargetable && crbar.KegObj.IsValidTarget())
+                Keg nbar = NearestKeg(Player.ServerPosition.To2D());
+                if (nbar == null) return;
+                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.IsTargetable && nbar.KegObj.IsValidTarget() && nbar.KegObj.Health < 2)
                 {
                     if (target != null)
                     {
-                        var prediction = Prediction.GetPrediction(target, 0.7f);
-                        var harassposition = target.Position.Extend(prediction.CastPosition, explosionRange);
-                        if (harassposition.Distance(target.Position) < 410 && target.IsMoving)
+                        var prediction = Prediction.GetPrediction(target, 0.7f).CastPosition;
+                        
+                        if (prediction.Distance(target.Position) < 410 && target.IsMoving)
                         {
                             //if (crbar.KegObj.Position.X - harassposition.X == 5)
                             //{ }
-                            
-
-                            E.Cast(harassposition);                                               
-                            Q.CastOnUnit(crbar.KegObj);
+                            prediction = target.Position.Extend(prediction, explosionRange);                         
+                                
+                                if (prediction.IsValid())
+                                {
+                                    E.Cast(prediction);
+                                }                                                                             
+                            Q.CastOnUnit(nbar.KegObj);
                         }
                     }
                 }
@@ -376,7 +379,7 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q) && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R) && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
 
@@ -400,13 +403,13 @@ namespace Bangplank
             
         }
 
-        private static Keg NearestReadyKeq(Vector2 pos)
+        private static Keg NearestKeg(Vector2 pos)
         {
             if (LiveBarrels.Count == 0)
             {
                 return null;
             }
-            return LiveBarrels.Where(k => k.IsReady).OrderBy(b => b.KegObj.ServerPosition.Distance(pos.To3D())).FirstOrDefault();
+            return LiveBarrels.OrderBy(k => k.KegObj.ServerPosition.Distance(pos.To3D())).FirstOrDefault();
         }
         // Get Values code
         private static bool GetBool(string name)
