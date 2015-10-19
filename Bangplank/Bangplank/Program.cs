@@ -14,7 +14,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.14";
+        public static String Version = "1.0.1.27";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -252,9 +252,13 @@ namespace Bangplank
                     }
                 }
             }
+            // Q
+            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null && !E.IsReady())
+            {
+                Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
+            }
 
 
-           
             // Extended EQ
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq"))
             {
@@ -285,11 +289,7 @@ namespace Bangplank
             }
 
 
-            // Q
-            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null)
-            {
-                Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
-            }
+           
 
 
             
