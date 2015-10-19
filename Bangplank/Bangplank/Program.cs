@@ -369,7 +369,7 @@ namespace Bangplank
                     }
                 }
             }
-            else if (GetBool("bangplank.menu.misc.rks") && R.IsReady())
+            if (GetBool("bangplank.menu.misc.rks") && R.IsReady())
             {
                 if (kstarget != null)
                     foreach (var ks in kstarget)
