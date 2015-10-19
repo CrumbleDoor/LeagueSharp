@@ -251,18 +251,18 @@ namespace Bangplank
                     {
                         var prediction = Prediction.GetPrediction(target, 0.7f).CastPosition;
                         
-                        if (prediction.Distance(target.Position) < 410 && target.IsMoving)
-                        {
+                        //if (prediction.Distance(target.Position) < 410 && target.IsMoving)
+                        //{
                             //if (crbar.KegObj.Position.X - harassposition.X == 5) blabla
                             //{ }
-                            prediction = target.Position.Extend(prediction, explosionRange);                         
+                           // prediction = target.Position.Extend(prediction, explosionRange);                         
                                 
-                                if (prediction.IsValid())
-                                {
+                               // if (prediction.IsValid())
+                               // {
                                     E.Cast(prediction);
-                                }                                                                             
+                               // }                                                                             
                             Q.CastOnUnit(nbar.KegObj);
-                        }
+                       // }
                     }
                 }
             }
