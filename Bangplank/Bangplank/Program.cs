@@ -245,7 +245,7 @@ namespace Bangplank
                 if (LiveBarrels.Count == 0) return;
                 Keg nbar = NearestKeg(Player.ServerPosition.To2D());
                 if (nbar == null) return;
-                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.IsTargetable && nbar.KegObj.IsValidTarget() && nbar.KegObj.Health < 2)
+                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2)
                 {
                     if (target != null)
                     {
@@ -253,7 +253,7 @@ namespace Bangplank
                         
                         if (prediction.Distance(target.Position) < 410 && target.IsMoving)
                         {
-                            //if (crbar.KegObj.Position.X - harassposition.X == 5)
+                            //if (crbar.KegObj.Position.X - harassposition.X == 5) blabla
                             //{ }
                             prediction = target.Position.Extend(prediction, explosionRange);                         
                                 
@@ -425,32 +425,14 @@ namespace Bangplank
     internal class Keg
     {
         public Obj_AI_Minion KegObj;
-        public bool IsReady;
+        
         
         public Keg(Obj_AI_Minion obj)
         {
             KegObj = obj;
-            Ready();
+            
         }
 
-        private void Ready()
-        {
-
-            if (Bangplank.Program.Player.Level > 12)
-            {
-                Utility.DelayAction.Add(1000, () => this.IsReady = true);
-            }
-            else if (Bangplank.Program.Player.Level > 6)
-            {
-                Utility.DelayAction.Add(2000, () => this.IsReady = true);
-            }
-            else
-            {
-                Utility.DelayAction.Add(4000, () => this.IsReady = true);
-            }
-
-
-        }
 
     }
 
