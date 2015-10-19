@@ -91,6 +91,21 @@ namespace Bangplank
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetTooltip("If on, will auto Q to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(true));
+            // Items Manager Menu
+            var itemManagerMenu = new Menu("Items Manager", "bangplank.menu.item");
+                var potionManagerMenu = new Menu("Potions", "bangplank.menu.item.potion");
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.hp", "Health Potion").SetValue(true));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.hphealth", "Health %").SetTooltip("If under, will use Health potion").SetValue(new Slider(65, 0, 100)));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.mp", "Mana Potion").SetValue(true));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.mana", "Mana %").SetTooltip("If under, will use Mana potion").SetValue(new Slider(, 0, 100)));
+
+
+
+            itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.youmuu", "Use Youmuu's Ghostblade").SetTooltip("Use Youmuu in Combo").SetValue(true));
+            itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.hydra", "Use Ravenous Hydra").SetTooltip("Use Hydra to clear and in Combo").SetValue(true));
+
+
+
 
             // Drawing Menu
             Menu drawingMenu = new Menu("Drawing", "bangplank.menu.drawing");
@@ -104,6 +119,8 @@ namespace Bangplank
             _menu.AddSubMenu(harassMenu);
             _menu.AddSubMenu(farmMenu);
             _menu.AddSubMenu(miscMenu);
+            _menu.AddSubMenu(itemManagerMenu);
+                itemManagerMenu.AddSubMenu(potionManagerMenu);
                 miscMenu.AddSubMenu(barrelManagerMenu);
                 miscMenu.AddSubMenu(cleanserManagerMenu);
             _menu.AddSubMenu(drawingMenu);
@@ -196,6 +213,10 @@ namespace Bangplank
             {
                 BarrelManager();
             }
+            if (GetBool(""))
+            {
+                Potion();
+            }
             var activeOrbwalker = _orbwalker.ActiveMode;
             switch (activeOrbwalker)
             {
@@ -219,7 +240,9 @@ namespace Bangplank
             
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
-            // TODO
+            // TODO 
+            LeagueSharp.Common.Items.UseItem(3142); //yumuu
+            LeagueSharp.Common.Items.UseItem(3142); //yumuu
         }
         private static void WaveClear()
         {
@@ -266,31 +289,35 @@ namespace Bangplank
 
                 Keg nbar = NearestKeg(Player.ServerPosition.To2D());
                 if (nbar == null) return;
-                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2)
+                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3 && Player.Level >= 13))
                 {
                     if (target != null)
                     {
-                        var prediction = Prediction.GetPrediction(target, 0.7f).CastPosition;
-
-                        //if (prediction.Distance(target.Position) < 410 && target.IsMoving)
-                        //{
-
+                        var prediction = Prediction.GetPrediction(target, 0.7f).CastPosition;                     
                         if (nbar.KegObj.Distance(prediction) < linkRange)
-                        { 
-                            //{ }
-                            // prediction = target.Position.Extend(prediction, explosionRange);                         
-                                
-                            // if (prediction.IsValid())
-                            // {
+                        {                          
                             E.Cast(prediction);
-                        // }                                                                             
-                        Q.Cast(nbar.KegObj);
-                        // }
+                            if (Player.Level < 13)
+                            {
+                                Utility.DelayAction.Add((int) (30 + Game.Ping), () =>
+                                {
+                                    Q.Cast(nbar.KegObj);
+                                }
+                                    );
+                            }
+                            if (Player.Level >= 13)
+                            {
+                                Utility.DelayAction.Add((int)(450 - Game.Ping), () =>
+                                {
+                                    Q.Cast(nbar.KegObj);
+                                }
+                                   );
+
+                            }
+                        }
                     }
                 }
-                }
             }
-
 
         }
 
@@ -378,7 +405,7 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*7 && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*9 && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
 
@@ -399,6 +426,11 @@ namespace Bangplank
         private static void BarrelManager()
         {
            
+            
+        }
+
+        private static void Potion()
+        {
             
         }
 
