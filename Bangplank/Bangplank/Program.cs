@@ -22,7 +22,7 @@ namespace Bangplank
         private static float explosionRange = 390;
         private static float linkRange = 650;
         private static List<Keg>  LiveBarrels = new List<Keg>();
-
+        
         
          private static void Main(string[] args)
         {
@@ -131,13 +131,20 @@ namespace Bangplank
         {
             if (sender.Name == "Keg")
             {
-                LiveBarrels.Add(new Keg(sender as Obj_AI_Minion, System.Environment.TickCount));
+                LiveBarrels.Add(new Keg(sender as Obj_AI_Minion));
             }
         }
 
         private static void GameObjDelete(GameObject sender, EventArgs args)
         {
-            foreach (Keg keg in LiveBarrels.Where(keg => keg.KegObj.NetworkId == sender.NetworkId)) LiveBarrels.Remove(keg);
+            for (int i = 0; i < LiveBarrels.Count; i++)
+            {
+                if (LiveBarrels[i].KegObj.NetworkId == sender.NetworkId)
+                {
+                    LiveBarrels.RemoveAt(i);
+                    return;
+                }
+            }
         }
 
         // Draw Manager
@@ -324,6 +331,7 @@ namespace Bangplank
                         {
                             if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q))
                             {
+                               
                                 Q.CastOnUnit(ks);
                             }
                         }
@@ -352,12 +360,33 @@ namespace Bangplank
     internal class Keg
     {
         public Obj_AI_Minion KegObj;
-        public float Ticks;
-
-        public Keg(Obj_AI_Minion obj, int tickCount)
+        public bool IsReady;
+        
+        public Keg(Obj_AI_Minion obj)
         {
             KegObj = obj;
-            Ticks = tickCount;
+            Ready();
+        }
+
+        private void Ready()
+        {
+            // int time = Bangplank.Program.Player.Level > 6 ? (Player.Level > 12 ? 1000 : 2000) : 4000;
+
+
+            if (Bangplank.Program.Player.Level > 12)
+            {
+                Utility.DelayAction.Add(1000, () => this.IsReady = true);
+            }
+            else if (Bangplank.Program.Player.Level > 6)
+            {
+                Utility.DelayAction.Add(2000, () => this.IsReady = true);
+            }
+            else
+            {
+                Utility.DelayAction.Add(1000, () => this.IsReady = true);
+            }
+
+
         }
 
     }
