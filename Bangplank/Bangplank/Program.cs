@@ -253,11 +253,11 @@ namespace Bangplank
                 }
             }
             // Q
-            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null && !E.IsReady())
+            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null && LiveBarrels.Count == 0)
             {
+
                 Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
-
 
             // Extended EQ
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq"))
@@ -288,13 +288,6 @@ namespace Bangplank
                 }
             }
 
-
-           
-
-
-            
-
-            
 
         }
 
