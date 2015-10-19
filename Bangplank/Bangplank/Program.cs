@@ -14,7 +14,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.7";
+        public static String Version = "1.0.1.9";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -33,7 +33,7 @@ namespace Bangplank
         private static void MenuIni()
         {
             // Main Menu
-            _menu = new Menu("<font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font>", "bangplank.menu", true);
+            _menu = new Menu("BangPlank", "bangplank.menu", true);
 
             // Orbwalker Menu
             var orbwalkerMenu = new Menu("Orbwalker", "bangplank.menu.orbwalker");
@@ -53,9 +53,9 @@ namespace Bangplank
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana for Q harass").SetValue(new Slider(30, 0, 100)));
             harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedqe", "Enabled"));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then"));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "it will E + Q to harass"));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
 
 
             // Farm Menu
@@ -88,7 +88,9 @@ namespace Bangplank
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healmin", "Health %").SetValue(new Slider(30, 0, 100)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum mana to heal").SetValue(new Slider(40, 0, 100)));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Q KillSteal").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetValue(true));
 
             // Drawing Menu
             Menu drawingMenu = new Menu("Drawing", "bangplank.menu.drawing");
@@ -185,7 +187,7 @@ namespace Bangplank
             {
                 HealManager();
             }
-            if (GetBool("bangplank.menu.misc.qks"))
+            if (GetBool("bangplank.menu.misc.ks"))
             {
                 KillSteal();
             }
@@ -327,7 +329,7 @@ namespace Bangplank
         {
             var kstarget = HeroManager.Enemies;
 
-            if (Q.IsReady())
+            if (GetBool("bangplank.menu.misc.qks") && Q.IsReady())
             {
                 if (kstarget != null)
                 {
@@ -335,7 +337,7 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q))
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q) && ks.Health > 0 && Q.IsInRange(ks))
                             {
                                
                                 Q.CastOnUnit(ks);
@@ -343,6 +345,29 @@ namespace Bangplank
                         }
                     }
                 }
+            }
+            else if (GetBool("bangplank.menu.misc.rks") && R.IsReady())
+            {
+                if (kstarget != null)
+                    foreach (var ks in kstarget)
+                    {
+                        if (ks != null)
+                        {
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q) && ks.Health > 0)
+                            {
+                                var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
+
+                                if (ksposition.Distance(ks.Position) < 400 && ks.IsMoving)
+                                {
+                                    ksposition = ks.Position.Extend(ksposition, 400);
+                                }
+                                if (ksposition.IsValid())
+                                {
+                                    R.Cast(ksposition);
+                                }
+                            }
+                        }
+                    }
             }
         }
 
