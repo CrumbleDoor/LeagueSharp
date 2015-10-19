@@ -34,10 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LeagueSharp">
-      <HintPath>..\..\..\..\..\Desktop\Botting - Hack\LoL - Leaguesharp\LeagueSharp\System\LeagueSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\Botting - Hack\LoL - Leaguesharp\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\..\..\..\..\Desktop\Botting - Hack\LoL - Leaguesharp\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>..\..\..\..\..\Botting - Hack\LoL - Leaguesharp\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\..\..\..\Desktop\Botting - Hack\LoL - Leaguesharp\LeagueSharp\System\SharpDX.dll</HintPath>

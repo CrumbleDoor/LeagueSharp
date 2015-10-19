@@ -1,16 +1,1 @@
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\Bangplank.exe.config
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\Bangplank.exe
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\Bangplank.pdb
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\LeagueSharp.Common.dll
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\LeagueSharp.dll
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\SharpDX.dll
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\SharpDX.Direct3D9.dll
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\clipper_library.dll
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\LeagueSharp.Sandbox.dll
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\bin\Debug\LeagueSharp.xml
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\obj\Debug\Bangplank.csprojResolveAssemblyReference.cache
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\obj\Debug\Bangplank.exe
-c:\users\baballevincent\documents\visual studio 2015\Projects\Bangplank\Bangplank\obj\Debug\Bangplank.pdb
 C:\Users\baballevincent\Desktop\Programmation\C Sharp\Leaguesharp\Bangplank\Bangplank\bin\Debug\Bangplank.exe.config
-C:\Users\baballevincent\Desktop\Programmation\C Sharp\Leaguesharp\Bangplank\Bangplank\obj\Debug\Bangplank.exe
-C:\Users\baballevincent\Desktop\Programmation\C Sharp\Leaguesharp\Bangplank\Bangplank\obj\Debug\Bangplank.pdb

@@ -14,7 +14,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.28";
+        public static String Version = "1.0.1.29";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -50,17 +50,17 @@ namespace Bangplank
             
             // Harass Menu
             var harassMenu = new Menu("Harass", "bangplank.menu.harass");            
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetValue(true));
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana for Q harass").SetValue(new Slider(30, 0, 100)));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetTooltip("If disabled, it won't block EQ usage").SetValue(true));                
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(30, 0, 100)));
 
 
             // Farm Menu
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
-                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetValue(true));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetTooltip("Recommended enable for bonus gold").SetValue(true));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlhmana", "Minimum mana for Q lasthit").SetValue(new Slider(20, 0, 100)));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.ewc", "Use E to waveclear").SetValue(true));
                 
@@ -68,7 +68,7 @@ namespace Bangplank
             var miscMenu = new Menu("Misc", "bangplank.menu.misc");
                 // Barrel Manager Options
                 var barrelManagerMenu = new Menu("Barrel Manager","bangplank.menu.misc.barrelmanager");
-                    barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.edisabled", "Block E usage").SetValue(false));
+                    barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.edisabled", "Block E usage").SetTooltip("If on, won't use E").SetValue(false));
                     
 
                 // Cleanser W Manager Menu
@@ -77,24 +77,24 @@ namespace Bangplank
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.separation1", ""));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.separation2", "Buff Types: "));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.charm", "Charm").SetValue(true));
-                    cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.flee", "Flee").SetValue(true));
+                    cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.flee", "Flee").SetTooltip("Fear").SetValue(true));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.polymorph", "Polymorph").SetValue(true));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.snare", "Snare").SetValue(true));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.stun", "Stun").SetValue(true));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.taunt", "Taunt").SetValue(true));
-                    cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.exhaust", "Exhaust(slow only)").SetValue(false));
+                    cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.exhaust", "Exhaust").SetTooltip("Will only remove Slow").SetValue(false));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.suppression", "Supression").SetValue(true));
 
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetValue(true));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healmin", "Health %").SetValue(new Slider(30, 0, 100)));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum mana to heal").SetValue(new Slider(40, 0, 100)));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetValue(true));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetValue(true));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetTooltip("Enable auto W heal(won't cancel recall if low)").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healmin", "Health %").SetTooltip("If under, will use W").SetValue(new Slider(30, 0, 100)));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum Mana %").SetTooltip("Minimum mana to use W heal").SetValue(new Slider(35, 0, 100)));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetTooltip("If on, will auto Q to KS").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(true));
 
             // Drawing Menu
             Menu drawingMenu = new Menu("Drawing", "bangplank.menu.drawing");
-                drawingMenu.AddItem(new MenuItem("bangplank.menu.drawing.enabled", "Enabled").SetValue(true));
+                drawingMenu.AddItem(new MenuItem("bangplank.menu.drawing.enabled", "Enabled").SetTooltip("If off, will block bangplank drawings").SetValue(true));
                 drawingMenu.AddItem(new MenuItem("bangplank.menu.drawing.q", "Draw Q range").SetValue(true));
                 drawingMenu.AddItem(new MenuItem("bangplank.menu.drawing.e", "Draw E range").SetValue(true));
            
@@ -260,7 +260,7 @@ namespace Bangplank
             }
 
             // Extended EQ
-            if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq"))
+            if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
             {
                 if (LiveBarrels.Count == 0) return;
 
@@ -271,20 +271,23 @@ namespace Bangplank
                     if (target != null)
                     {
                         var prediction = Prediction.GetPrediction(target, 0.7f).CastPosition;
-                        
+
                         //if (prediction.Distance(target.Position) < 410 && target.IsMoving)
                         //{
-                            if ((nbar.KegObj.Position.X - prediction.X < linkRange && nbar.KegObj.Position.X - prediction.X > -650) || (nbar.KegObj.Position.X - prediction.X < linkRange && nbar.KegObj.Position.Y - prediction.Y > -650) ) 
+
+                        if (nbar.KegObj.Distance(prediction) < linkRange)
+                        { 
                             //{ }
-                           // prediction = target.Position.Extend(prediction, explosionRange);                         
+                            // prediction = target.Position.Extend(prediction, explosionRange);                         
                                 
-                               // if (prediction.IsValid())
-                               // {
-                                    E.Cast(prediction);
-                               // }                                                                             
-                            Q.Cast(nbar.KegObj);
-                       // }
+                            // if (prediction.IsValid())
+                            // {
+                            E.Cast(prediction);
+                        // }                                                                             
+                        Q.Cast(nbar.KegObj);
+                        // }
                     }
+                }
                 }
             }
 
@@ -318,6 +321,7 @@ namespace Bangplank
         // W heal
         private static void HealManager()
         {
+            if (Player.IsRecalling()) return;
             if (W.IsReady() && Player.HealthPercent <= Getslider("bangplank.menu.misc.healmin") &&
                 Player.ManaPercent >= Getslider("bangplank.menu.misc.healminmana"))
             {
