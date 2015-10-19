@@ -14,7 +14,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.9";
+        public static String Version = "1.0.1.14";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -52,10 +52,10 @@ namespace Bangplank
             var harassMenu = new Menu("Harass", "bangplank.menu.harass");            
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana for Q harass").SetValue(new Slider(30, 0, 100)));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
-            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
 
 
             // Farm Menu
@@ -215,7 +215,8 @@ namespace Bangplank
 
         private static void Combo()
         {
-            var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
+            
+            var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
             // TODO
         }
@@ -230,15 +231,36 @@ namespace Bangplank
 
         private static void Mixed()
         {
+            // Q lasthit minions
+            var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
 
-            
-            
+
 
             // harass
-            // Extended QE
-            if (Q.IsReady() && E.IsReady())
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+            // Extended EQ
+            if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq"))
             {
-                
+                if (LiveBarrels.Count == 0) return;
+                Keg crbar = NearestReadyKeq(Player.ServerPosition.To2D());
+                if (crbar == null) return;
+                if (Player.ServerPosition.Distance(crbar.KegObj.Position) < Player.AttackRange && crbar.KegObj.IsTargetable && crbar.KegObj.IsValidTarget())
+                {
+                    if (target != null)
+                    {
+                        var prediction = Prediction.GetPrediction(target, 0.7f);
+                        var harassposition = target.Position.Extend(prediction.CastPosition, explosionRange);
+                        if (harassposition.Distance(target.Position) < 410 && target.IsMoving)
+                        {
+                            //if (crbar.KegObj.Position.X - harassposition.X == 5)
+                            //{ }
+                            
+
+                            E.Cast(harassposition);                                               
+                            Q.CastOnUnit(crbar.KegObj);
+                        }
+                    }
+                }
             }
 
 
@@ -249,10 +271,9 @@ namespace Bangplank
             }
 
 
-            // Q lasthit
-            var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
+            
 
-            if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
+            else if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
             {
                 if (minions != null)
                 {
@@ -295,6 +316,7 @@ namespace Bangplank
             }
         }
 
+        // W heal
         private static void HealManager()
         {
             if (W.IsReady() && Player.HealthPercent <= Getslider("bangplank.menu.misc.healmin") &&
@@ -325,10 +347,10 @@ namespace Bangplank
             }
         }
 
+        // Ks logic, - Wtf u sayin? there's no logic here brah - shhh they won't see - stupid moron 
         private static void KillSteal()
         {
             var kstarget = HeroManager.Enemies;
-
             if (GetBool("bangplank.menu.misc.qks") && Q.IsReady())
             {
                 if (kstarget != null)
@@ -377,6 +399,14 @@ namespace Bangplank
             
         }
 
+        private static Keg NearestReadyKeq(Vector2 pos)
+        {
+            if (LiveBarrels.Count == 0)
+            {
+                return null;
+            }
+            return LiveBarrels.Where(k => k.IsReady).OrderBy(b => b.KegObj.ServerPosition.Distance(pos.To3D())).FirstOrDefault();
+        }
         // Get Values code
         private static bool GetBool(string name)
         {
@@ -401,8 +431,6 @@ namespace Bangplank
 
         private void Ready()
         {
-            // int time = Bangplank.Program.Player.Level > 6 ? (Player.Level > 12 ? 1000 : 2000) : 4000;
-
 
             if (Bangplank.Program.Player.Level > 12)
             {
@@ -414,7 +442,7 @@ namespace Bangplank
             }
             else
             {
-                Utility.DelayAction.Add(1000, () => this.IsReady = true);
+                Utility.DelayAction.Add(4000, () => this.IsReady = true);
             }
 
 
