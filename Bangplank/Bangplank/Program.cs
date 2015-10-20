@@ -224,6 +224,23 @@ namespace Bangplank
             {
                 return;
             }
+            
+            var activeOrbwalker = _orbwalker.ActiveMode;
+            switch (activeOrbwalker)
+            {
+                case Orbwalking.OrbwalkingMode.Combo:
+                    Combo();
+                    break;
+                case Orbwalking.OrbwalkingMode.LaneClear:
+                    WaveClear();
+                    break;
+                case Orbwalking.OrbwalkingMode.Mixed:
+                    Mixed();
+                    break;
+                case Orbwalking.OrbwalkingMode.LastHit:
+                    LastHit();
+                    break;
+            }
             if (GetBool("bangplank.menu.misc.cleansermanager.enabled"))
             {
                 CleanserManager();
@@ -244,23 +261,7 @@ namespace Bangplank
             {
                 Potion();
             }
-            
-            var activeOrbwalker = _orbwalker.ActiveMode;
-            switch (activeOrbwalker)
-            {
-                case Orbwalking.OrbwalkingMode.Combo:
-                    Combo();
-                    break;
-                case Orbwalking.OrbwalkingMode.LaneClear:
-                    WaveClear();
-                    break;
-                case Orbwalking.OrbwalkingMode.Mixed:
-                    Mixed();
-                    break;
-                case Orbwalking.OrbwalkingMode.LastHit:
-                    LastHit();
-                    break;
-            }
+
         }
 
         private static void Combo()
@@ -315,16 +316,13 @@ namespace Bangplank
             //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + explosionRange, MinionTypes.All, MinionTeam.Neutral);
             //minions.AddRange(jungleMobs);
 
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc"))
-            {
-                if (minions.Count >= Getslider("bangplank.menu.farm.eminwc") && E.IsReady())
-                {
-                    if (Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range + explosionRange || LiveBarrels.Count == 0)
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && minions.Count >= Getslider("bangplank.menu.farm.eminwc"))
+            {                                
+                    if ((Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range + explosionRange || LiveBarrels.Count == 0) && E.IsReady())
                     {
                         //E.Instance.Ammo
                         E.Cast(minions.FirstOrDefault().Position);
-                    }                   
-                }
+                    }                                   
 
                 if (LiveBarrels.Count == 0)
                 {
@@ -408,7 +406,7 @@ namespace Bangplank
                             E.Cast(prediction);
                             if (Player.Level < 13)
                             {
-                                Utility.DelayAction.Add((int) (30 + Game.Ping), () =>
+                                Utility.DelayAction.Add((int) (Game.Ping), () =>
                                 {
                                     Q.Cast(nbar.KegObj);
                                 }
@@ -445,14 +443,9 @@ namespace Bangplank
                         if (m != null)
                         {
                             if (m.Health <= Player.GetSpellDamage(m, SpellSlot.Q))
-                            {
-                                Utility.DelayAction.Add((int)(50 + Game.Ping), () =>
-                                {
-                                    Q.CastOnUnit(m);
-                                }
-                                    );                              
-                            }
-                            
+                            {                               
+                                    Q.CastOnUnit(m);                                                          
+                            }                          
                         }
                     }
                 }
