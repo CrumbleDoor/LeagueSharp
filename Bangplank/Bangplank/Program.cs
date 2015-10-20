@@ -437,7 +437,11 @@ namespace Bangplank
                         {
                             if (m.Health <= Player.GetSpellDamage(m, SpellSlot.Q))
                             {
-                                Q.CastOnUnit(m);
+                                Utility.DelayAction.Add((int)(100 + Game.Ping), () =>
+                                {
+                                    Q.CastOnUnit(m);
+                                }
+                                    );                              
                             }
                         }
                     }
