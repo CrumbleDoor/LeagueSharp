@@ -8,13 +8,25 @@ using System.Threading.Tasks;
 using LeagueSharp.Common;
 using SharpDX;
 
-// By baballev
+// By baballev, made with love and swagg
 // Up to date for 5.20
+
+// -------------------------------------------
+// -/!\ Bad English under this line kappa /!\-
+// -------------------------------------------
+
+// This is my first assembly, I don't think my code is optimised yet but i'll try to improve it in the future, if u have any suggestion, please tell me :3
+// 1) I know my code is a mess so if you have any recommandations, I'll be happy to listen to you :)
+// 2) If you found a bogue please send me a private message or post on the realated thread on the forum.
+// 3) If you have any suggestion about a new feature , please send me a private message or post on the related thread on the forum.
+// 4) Do not hesitate to send me your game stats I really want to know if it is usefull and so on.
+// 5) I'm open to any remarks, discussion, suggestion, ... Do not hesitate.
+// Enjoy.
 namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.29";
+        public static String Version = "1.0.1.35";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -238,20 +250,30 @@ namespace Bangplank
 
         private static void Combo()
         {
-            
+
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
+            if (TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical) != null &&
+                LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
+            {
+                LeagueSharp.Common.Items.UseItem(3142); //youmuu gb
+            }
             // TODO 
-          //  LeagueSharp.Common.Items.UseItem(3142); //yumuu
-          //  LeagueSharp.Common.Items.UseItem(3074); //hydra
         }
+
         private static void WaveClear()
-        {
-            // TODO 
+        {            
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
             var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
             minions.AddRange(jungleMobs);
 
+
+
+            if (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
+                LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
+            {
+                LeagueSharp.Common.Items.UseItem(3074); //hydra, range of active = 400
+            }
         }
 
         private static void Mixed()
@@ -284,7 +306,7 @@ namespace Bangplank
             }
 
             // Extended EQ
-            if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
+            if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
                 if (LiveBarrels.Count == 0) return;
 
@@ -306,9 +328,10 @@ namespace Bangplank
                                 }
                                     );
                             }
+                            // Faster cast
                             if (Player.Level >= 13)
                             {
-                                Utility.DelayAction.Add((int)(450 - Game.Ping), () =>
+                                Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
                                 {
                                     Q.Cast(nbar.KegObj);
                                 }
@@ -408,13 +431,13 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*9 && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*8 && ks.Health > 0)
                             {
-                                var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
+                                var ksposition = Prediction.GetPrediction(ks, 0.9f).CastPosition;
 
                                 if (ksposition.Distance(ks.Position) < 400 && ks.IsMoving)
                                 {
-                                    ksposition = ks.Position.Extend(ksposition, 400);
+                                    ksposition = ks.Position.Extend(ksposition, 450);
                                 }
                                 if (ksposition.IsValid())
                                 {
