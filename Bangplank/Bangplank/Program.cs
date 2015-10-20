@@ -311,26 +311,26 @@ namespace Bangplank
         private static void WaveClear()
         {
             Keg nbar = NearestKeg(Player.ServerPosition.To2D());
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
-            //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + explosionRange);
+            //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + explosionRange, MinionTypes.All, MinionTeam.Neutral);
             //minions.AddRange(jungleMobs);
 
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc"))
             {
                 if (minions.Count >= Getslider("bangplank.menu.farm.eminwc") && E.IsReady())
                 {
-                    //if (nbar.KegObj.Distance(Player) > Q.Range + 100 || LiveBarrels.Count == 0)
+                    if (nbar.KegObj.Distance(Player) > E.Range + explosionRange || LiveBarrels.Count == 0)
                     {
                         //E.Instance.Ammo
                         E.Cast(minions.FirstOrDefault().Position);
-                    }
-
-                    if (Q.IsReady() && GetBool("bangplank.menu.farm.qewc") &&
-                        Player.ManaPercent <= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj)) Q.Cast(nbar.KegObj);
-
-                    if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange && nbar.KegObj.Health < 2) Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
+                    }                   
                 }
-
+                if (LiveBarrels.Count == 0) return;
+                if (nbar == null) return;
+                if (Q.IsReady() && GetBool("bangplank.menu.farm.qewc") &&
+                    Player.ManaPercent <= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj) && nbar.KegObj.Health < 2)
+                    Q.Cast(nbar.KegObj);
+                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange && nbar.KegObj.Health < 2) Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
             }
 
 
@@ -377,15 +377,12 @@ namespace Bangplank
             {
                 if (LiveBarrels.Count == 0) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
                 if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > E.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
-
-
             }
 
             // Extended EQ
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
-                if (LiveBarrels.Count == 0) return;
-             
+                if (LiveBarrels.Count == 0) return;             
                 if (nbar == null) return;
                
                 if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3 && Player.Level >= 13))
@@ -412,7 +409,6 @@ namespace Bangplank
                                     Q.Cast(nbar.KegObj);
                                 }
                                    );
-
                             }
                         }
                     }
@@ -437,12 +433,13 @@ namespace Bangplank
                         {
                             if (m.Health <= Player.GetSpellDamage(m, SpellSlot.Q))
                             {
-                                Utility.DelayAction.Add((int)(100 + Game.Ping), () =>
+                                Utility.DelayAction.Add((int)(50 + Game.Ping), () =>
                                 {
                                     Q.CastOnUnit(m);
                                 }
                                     );                              
                             }
+                            
                         }
                     }
                 }
