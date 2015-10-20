@@ -67,13 +67,16 @@ namespace Bangplank
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(30, 0, 100)));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(20, 0, 100)));
 
             // Farm Menu
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
-                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetTooltip("Recommended enable for bonus gold").SetValue(true));
-                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlhmana", "Minimum mana for Q lasthit").SetValue(new Slider(20, 0, 100)));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetTooltip("Recommended On for bonus gold").SetValue(true));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlhmana", "Minimum mana for Q lasthit").SetValue(new Slider(10, 0, 100)));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewc", "Use Q on E to waveclear").SetTooltip("Recommended On for bonus gold").SetValue(true));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewcmana", "Minimum mana to use Q on E").SetValue(new Slider(10, 0, 100)));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.ewc", "Use E to waveclear").SetValue(true));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.eminwc", "Minimum minions to use E").SetValue(new Slider(3, 1, 15)));
                 
             // Misc Menu
             var miscMenu = new Menu("Misc", "bangplank.menu.misc");
@@ -96,7 +99,15 @@ namespace Bangplank
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.exhaust", "Exhaust").SetTooltip("Will only remove Slow").SetValue(false));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.suppression", "Supression").SetValue(true));
 
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetTooltip("Enable auto W heal(won't cancel recall if low)").SetValue(true));
+                // SwagPlank Menu ( Trolling functions ), I know it's useless, but fuck The Police
+                var swagplankMenu = new Menu("[WIP] SwagPlank", "bangplank.menu.misc.swagplank");
+                    swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.separator", "== Better not using these functions in ranked =="));
+                    swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.enabled", "SwagPlank").SetTooltip("Enable SwagPlank features").SetValue(false));
+                    swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.acedance", "Spam Dance on Ace").SetValue(false));
+                    swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.bullshit", "Say bullshit if Triple or +").SetTooltip("Example: My swaggness, keep me safe nabs").SetValue(false));
+                    swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.acedance", "Spam Dance on Ace").SetValue(false));
+
+            miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetTooltip("Enable auto W heal(won't cancel recall if low)").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healmin", "Health %").SetTooltip("If under, will use W").SetValue(new Slider(30, 0, 100)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum Mana %").SetTooltip("Minimum mana to use W heal").SetValue(new Slider(35, 0, 100)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
@@ -137,6 +148,7 @@ namespace Bangplank
                 itemManagerMenu.AddSubMenu(potionManagerMenu);
                 miscMenu.AddSubMenu(barrelManagerMenu);
                 miscMenu.AddSubMenu(cleanserManagerMenu);
+                miscMenu.AddSubMenu(swagplankMenu);
             _menu.AddSubMenu(drawingMenu);
             _menu.AddToMainMenu();
         }
@@ -150,6 +162,7 @@ namespace Bangplank
             Game.PrintChat("<b><font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font></b> " + Version + " loaded - By <font color='#6666FF'>Baballev</font>");
             Game.PrintChat("Don't forget to <font color='#00CC00'><b>Upvote</b></font> <b><font color='#FF6600'>Bang</font><font color='#FF0000'>Plank</font></b> in the AssemblyDB if you like it ^_^");
             MenuIni();
+            
             Player = ObjectManager.Player;       
             // Spells ranges
             Q = new Spell(SpellSlot.Q, 610);
@@ -231,6 +244,7 @@ namespace Bangplank
             {
                 Potion();
             }
+            
             var activeOrbwalker = _orbwalker.ActiveMode;
             switch (activeOrbwalker)
             {
@@ -253,7 +267,7 @@ namespace Bangplank
         {
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
-
+            // TODO [WIP]
 
 
             // Youmuu GB
@@ -267,6 +281,7 @@ namespace Bangplank
                     }
                 }
             }
+            
             // Ravenous Hydra
             if (GetBool("bangplank.menu.item.hydra") && HeroManager.Enemies != null &&
                 LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
@@ -287,18 +302,35 @@ namespace Bangplank
                 {
                     if (e.Distance(Player) <= 400)
                     {
-                        LeagueSharp.Common.Items.UseItem(3077); //timat
+                        LeagueSharp.Common.Items.UseItem(3077); //tiamat
                     }
                 }
             }
         }
 
         private static void WaveClear()
-        {            
+        {
+            Keg nbar = NearestKeg(Player.ServerPosition.To2D());
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
             var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
             minions.AddRange(jungleMobs);
 
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc"))
+            {
+                if (minions.Count >= Getslider("bangplank.menu.farm.eminwc") && E.IsReady())
+                {
+                    if (nbar.KegObj.Distance(Player) > Q.Range + 100 || LiveBarrels.Count == 0)
+                    {
+                        E.Cast(minions.FirstOrDefault().Position);
+                    }
+
+                    if (Q.IsReady() && GetBool("bangplank.menu.farm.qewc") &&
+                        Player.ManaPercent <= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj)) Q.Cast(nbar.KegObj);
+
+                    else if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange) Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
+                }
+
+            }
 
 
             if (GetBool("bangplank.menu.item.hydra") && MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
