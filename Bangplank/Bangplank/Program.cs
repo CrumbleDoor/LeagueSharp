@@ -253,12 +253,17 @@ namespace Bangplank
 
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
-            if (TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical) != null &&
-                LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
+            if (HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
             {
-                LeagueSharp.Common.Items.UseItem(3142); //youmuu gb
+                foreach (var e in HeroManager.Enemies)
+                {
+                    if (e.Distance(Player) <= Player.AttackRange + 50)
+                    {
+                        LeagueSharp.Common.Items.UseItem(3142); //youmuu gb
+                    }
+                    // TODO 
+                }
             }
-            // TODO 
         }
 
         private static void WaveClear()
@@ -282,6 +287,8 @@ namespace Bangplank
             var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
             // Q lasthit minions
             var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
+            Keg nbar = NearestKeg(Player.ServerPosition.To2D());
+
             if (GetBool("bangplank.menu.farm.qlh") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana") && target == null)
             {
                 if (minions != null)
@@ -299,19 +306,23 @@ namespace Bangplank
                 }
             }
             // Q
-            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null && LiveBarrels.Count == 0)
+            if (GetBool("bangplank.menu.harass.q") && Q.IsReady() && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana") && TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical) != null
+              
+                )
             {
+                if (LiveBarrels.Count == 0) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
+                if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > E.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
 
-                Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
+
             }
 
             // Extended EQ
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
                 if (LiveBarrels.Count == 0) return;
-
-                Keg nbar = NearestKeg(Player.ServerPosition.To2D());
+             
                 if (nbar == null) return;
+               
                 if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3 && Player.Level >= 13))
                 {
                     if (target != null)
