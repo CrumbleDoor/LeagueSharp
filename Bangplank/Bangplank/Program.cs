@@ -319,16 +319,17 @@ namespace Bangplank
             {
                 if (minions.Count >= Getslider("bangplank.menu.farm.eminwc") && E.IsReady())
                 {
-                    if (nbar.KegObj.Distance(Player) > E.Range + explosionRange || LiveBarrels.Count == 0)
+                    if (Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range + explosionRange || LiveBarrels.Count == 0)
                     {
                         //E.Instance.Ammo
                         E.Cast(minions.FirstOrDefault().Position);
                     }                   
                 }
+                
                 if (LiveBarrels.Count == 0) return;
                 if (nbar == null) return;
                 if (Q.IsReady() && GetBool("bangplank.menu.farm.qewc") &&
-                    Player.ManaPercent <= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj) && nbar.KegObj.Health < 2)
+                    Player.ManaPercent >= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj) && nbar.KegObj.Health < 2)
                     Q.Cast(nbar.KegObj);
                 if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange && nbar.KegObj.Health < 2) Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
             }
