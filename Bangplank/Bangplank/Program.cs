@@ -322,6 +322,10 @@ namespace Bangplank
                 {
                     E.Cast(posE.Position);
                 }
+                if (GetBool("bangplank.menu.farm.qewc") && Q.IsReady() &&
+                    Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj))
+                    Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
+
             }
 
 
