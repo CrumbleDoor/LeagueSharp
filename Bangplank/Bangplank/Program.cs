@@ -351,6 +351,7 @@ namespace Bangplank
         {
             if (Player.InFountain()) return;
             if (Player.IsRecalling()) return;
+            if (Player.InShop()) return;
             if (W.IsReady() && Player.HealthPercent <= Getslider("bangplank.menu.misc.healmin") &&
                 Player.ManaPercent >= Getslider("bangplank.menu.misc.healminmana"))
             {
@@ -435,7 +436,7 @@ namespace Bangplank
         {
             if (Player.InFountain()) return;
             if (Player.IsRecalling()) return;
-
+            if (Player.InShop()) return;
             if (GetBool("bangplank.menu.item.potion.hp") &&
                 Player.HealthPercent <= Getslider("bangplank.menu.item.potion.hphealth") &&
                 LeagueSharp.Common.Items.HasItem(2003))
@@ -461,10 +462,10 @@ namespace Bangplank
                 LeagueSharp.Common.Items.UseItem(2010);
             }
             if (GetBool("bangplank.menu.item.potion.cryst") &&
-            (Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") ||
-            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") ||
-            Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") / 2 ||
-            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") / 2) &&
+            ((Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") &&
+            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana")) ||
+            Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") * 0.5 ||
+            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") * 0.5) &&
             LeagueSharp.Common.Items.HasItem(2041))
             {
                 if (Player.HasBuff("ItemCrystalFlask")) return;
