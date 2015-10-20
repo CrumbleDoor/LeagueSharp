@@ -318,7 +318,7 @@ namespace Bangplank
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && minions.Count >= Getslider("bangplank.menu.farm.eminwc"))
             {
                 Keg nbar = NearestKeg(Player.ServerPosition.To2D());
-                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < E.Range || LiveBarrels.Count == 0) && E.IsReady())
+                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < E.Range || nbar == null) && E.IsReady())
                     {
                         //E.Instance.Ammo
                         E.Cast(minions.FirstOrDefault().Position);
