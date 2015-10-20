@@ -57,7 +57,6 @@ namespace Bangplank
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(30, 0, 100)));
 
-
             // Farm Menu
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetTooltip("Recommended enable for bonus gold").SetValue(true));
@@ -91,21 +90,23 @@ namespace Bangplank
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetTooltip("If on, will auto Q to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(true));
+            
             // Items Manager Menu
             var itemManagerMenu = new Menu("Items Manager", "bangplank.menu.item");
                 var potionManagerMenu = new Menu("Potions", "bangplank.menu.item.potion");
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.enabled", "Enabled").SetTooltip("If off, won't use potions").SetValue(true));
                     potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.hp", "Health Potion").SetValue(true));
-                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.hphealth", "Health %").SetTooltip("If under, will use Health potion").SetValue(new Slider(65, 0, 100)));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.hphealth", "Health %").SetTooltip("If under, will use Health potion").SetValue(new Slider(50, 0, 100)));
                     potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.mp", "Mana Potion").SetValue(true));
-                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.mana", "Mana %").SetTooltip("If under, will use Mana potion").SetValue(new Slider(, 0, 100)));
-
-
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.mana", "Mana %").SetTooltip("If under, will use Mana potion").SetValue(new Slider(30, 0, 100)));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.biscuit", "Biscuit").SetValue(true));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.biscuithealth", "Health %").SetTooltip("If under, will use Biscuit of rejuvenation").SetValue(new Slider(50, 0, 100)));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.potion.cryst", "Crystalline Flask").SetValue(true));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.crysthealth", "Health %").SetTooltip("If under, will use Crystalline Flask").SetValue(new Slider(50, 0, 100)));
+                    potionManagerMenu.AddItem(new MenuItem("bangplank.menu.item.crystmana", "Mana %").SetTooltip("If under, will use Crystalline Flask").SetValue(new Slider(30, 0, 100)));
 
             itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.youmuu", "Use Youmuu's Ghostblade").SetTooltip("Use Youmuu in Combo").SetValue(true));
             itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.hydra", "Use Ravenous Hydra").SetTooltip("Use Hydra to clear and in Combo").SetValue(true));
-
-
-
 
             // Drawing Menu
             Menu drawingMenu = new Menu("Drawing", "bangplank.menu.drawing");
@@ -213,7 +214,7 @@ namespace Bangplank
             {
                 BarrelManager();
             }
-            if (GetBool(""))
+            if (GetBool("bangplank.menu.item.potion.enabled"))
             {
                 Potion();
             }
@@ -241,8 +242,8 @@ namespace Bangplank
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
             // TODO 
-            LeagueSharp.Common.Items.UseItem(3142); //yumuu
-            LeagueSharp.Common.Items.UseItem(3142); //yumuu
+          //  LeagueSharp.Common.Items.UseItem(3142); //yumuu
+          //  LeagueSharp.Common.Items.UseItem(3074); //hydra
         }
         private static void WaveClear()
         {
@@ -348,6 +349,7 @@ namespace Bangplank
         // W heal
         private static void HealManager()
         {
+            if (Player.InFountain()) return;
             if (Player.IsRecalling()) return;
             if (W.IsReady() && Player.HealthPercent <= Getslider("bangplank.menu.misc.healmin") &&
                 Player.ManaPercent >= Getslider("bangplank.menu.misc.healminmana"))
@@ -431,7 +433,48 @@ namespace Bangplank
 
         private static void Potion()
         {
-            
+            if (Player.InFountain()) return;
+            if (Player.IsRecalling()) return;
+
+            if (GetBool("bangplank.menu.item.potion.hp") &&
+                Player.HealthPercent <= Getslider("bangplank.menu.item.potion.hphealth") &&
+                LeagueSharp.Common.Items.HasItem(2003) &&
+                LeagueSharp.Common.Items.CanUseItem(2003))
+            {
+                if (Player.HasBuff("RegenerationPotion")) return;
+
+                LeagueSharp.Common.Items.UseItem(2003);
+            }
+            if (GetBool("bangplank.menu.item.potion.mp") &&
+                Player.ManaPercent <= Getslider("bangplank.menu.item.potion.mana") &&
+                LeagueSharp.Common.Items.HasItem(2004) &&
+                LeagueSharp.Common.Items.CanUseItem(2004))
+            {
+                if (Player.HasBuff("FlaskOfCrystalWater")) return;
+
+                LeagueSharp.Common.Items.UseItem(2004);
+            }
+            if (GetBool("bangplank.menu.item.potion.biscuit") &&
+            Player.HealthPercent <= Getslider("bangplank.menu.item.potion.biscuithealth") &&
+            LeagueSharp.Common.Items.HasItem(2010) &&
+            LeagueSharp.Common.Items.CanUseItem(2010))
+            {
+                if (Player.HasBuff("ItemMiniRegenPotion")) return;
+
+                LeagueSharp.Common.Items.UseItem(2010);
+            }
+            if (GetBool("bangplank.menu.item.potion.cryst") &&
+            (Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") ||
+            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") ||
+            Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") / 2 ||
+            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") / 2) &&
+            LeagueSharp.Common.Items.HasItem(2041) &&
+            LeagueSharp.Common.Items.CanUseItem(2041))
+            {
+                if (Player.HasBuff("ItemCrystalFlask")) return;
+
+                LeagueSharp.Common.Items.UseItem(2041);
+            }
         }
 
         private static Keg NearestKeg(Vector2 pos)
@@ -447,7 +490,7 @@ namespace Bangplank
         {
             return _menu.Item(name).GetValue<bool>();
         }
-        private static int Getslider(String itemname)
+        private static int Getslider(string itemname)
         {
             return _menu.Item(itemname).GetValue<Slider>().Value;
         }
