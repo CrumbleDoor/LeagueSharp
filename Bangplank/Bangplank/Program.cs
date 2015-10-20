@@ -315,37 +315,12 @@ namespace Bangplank
             //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100, MinionTypes.All, MinionTeam.Neutral);
             //minions.AddRange(jungleMobs);
 
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc"))
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && E.IsReady())
             {
-                Keg nbar = NearestKeg(Player.ServerPosition.To2D());
-                
-                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range || LiveBarrels.Count == 0) && E.IsReady() && MinionManager.GetMinions(Player.ServerPosition, Q.Range).Count >= Getslider("bangplank.menu.farm.eminwc"))
-                    {
-                        
-                        
-
-                            E.Cast(MinionManager.GetMinions(Q.Range).FirstOrDefault());
-                            
-                        
-                    }                                   
-
-                if (LiveBarrels.Count == 0)
+                var posE = E.GetCircularFarmLocation(minions, explosionRange);
+                if (posE.MinionsHit > Getslider("bangplank.menu.farm.eminwc") && (LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range))
                 {
-                    return;
-                }
-                if (nbar == null)
-                {
-                    return;
-                }
-                if (Q.IsReady() && GetBool("bangplank.menu.farm.qewc") &&
-                    Player.ManaPercent >= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj) &&
-                    nbar.KegObj.Health < 2)
-                {
-                    Q.Cast(nbar.KegObj);
-                }
-                if (nbar.KegObj.Distance(Player) < Player.AttackRange && nbar.KegObj.Health < 2)
-                {
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
+                    E.Cast(posE.Position);
                 }
             }
 
