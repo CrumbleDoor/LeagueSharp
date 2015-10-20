@@ -26,7 +26,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.35";
+        public static String Version = "1.0.1.37";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -119,6 +119,7 @@ namespace Bangplank
 
             itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.youmuu", "Use Youmuu's Ghostblade").SetTooltip("Use Youmuu in Combo").SetValue(true));
             itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.hydra", "Use Ravenous Hydra").SetTooltip("Use Hydra to clear and in Combo").SetValue(true));
+            itemManagerMenu.AddItem(new MenuItem("bangplank.menu.item.tiamat", "Use Tiamat").SetTooltip("Use Tiamat to clear and in Combo").SetValue(true));
 
             // Drawing Menu
             Menu drawingMenu = new Menu("Drawing", "bangplank.menu.drawing");
@@ -250,10 +251,13 @@ namespace Bangplank
 
         private static void Combo()
         {
-
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
 
-            if (HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
+
+
+
+            // Youmuu GB
+            if (GetBool("bangplank.menu.item.youmuu") && HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
             {
                 foreach (var e in HeroManager.Enemies)
                 {
@@ -261,7 +265,30 @@ namespace Bangplank
                     {
                         LeagueSharp.Common.Items.UseItem(3142); //youmuu gb
                     }
-                    // TODO 
+                }
+            }
+            // Ravenous Hydra
+            if (GetBool("bangplank.menu.item.hydra") && HeroManager.Enemies != null &&
+                LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
+            {
+                foreach (var e in HeroManager.Enemies)
+                {
+                    if (e.Distance(Player) <= 400)
+                    {
+                        LeagueSharp.Common.Items.UseItem(3072); //ravenous hydra
+                    }
+                }
+            }
+            // Tiamat
+            if (GetBool("bangplank.menu.item.tiamat") && HeroManager.Enemies != null &&
+               LeagueSharp.Common.Items.HasItem(3077) && LeagueSharp.Common.Items.CanUseItem(3077))
+            {
+                foreach (var e in HeroManager.Enemies)
+                {
+                    if (e.Distance(Player) <= 400)
+                    {
+                        LeagueSharp.Common.Items.UseItem(3077); //timat
+                    }
                 }
             }
         }
@@ -274,10 +301,15 @@ namespace Bangplank
 
 
 
-            if (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
+            if (GetBool("bangplank.menu.item.hydra") && MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
                 LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
             {
                 LeagueSharp.Common.Items.UseItem(3074); //hydra, range of active = 400
+            }
+            if (GetBool("bangplank.menu.item.tiamat") && MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
+    LeagueSharp.Common.Items.HasItem(3077) && LeagueSharp.Common.Items.CanUseItem(3074))
+            {
+                LeagueSharp.Common.Items.UseItem(3077); //tiamat, range of active = 400
             }
         }
 
