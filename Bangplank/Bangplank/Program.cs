@@ -312,22 +312,23 @@ namespace Bangplank
         {
             Keg nbar = NearestKeg(Player.ServerPosition.To2D());
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
-            var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
-            minions.AddRange(jungleMobs);
+            //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
+            //minions.AddRange(jungleMobs);
 
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc"))
             {
                 if (minions.Count >= Getslider("bangplank.menu.farm.eminwc") && E.IsReady())
                 {
-                    if (nbar.KegObj.Distance(Player) > Q.Range + 100 || LiveBarrels.Count == 0)
+                    //if (nbar.KegObj.Distance(Player) > Q.Range + 100 || LiveBarrels.Count == 0)
                     {
+                        //E.Instance.Ammo
                         E.Cast(minions.FirstOrDefault().Position);
                     }
 
                     if (Q.IsReady() && GetBool("bangplank.menu.farm.qewc") &&
                         Player.ManaPercent <= Getslider("bangplank.menu.farm.qewcmana") && Q.IsInRange(nbar.KegObj)) Q.Cast(nbar.KegObj);
 
-                    else if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange) Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
+                    if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange && nbar.KegObj.Health < 2) Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
                 }
 
             }
