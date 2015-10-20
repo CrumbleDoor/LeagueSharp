@@ -311,17 +311,22 @@ namespace Bangplank
 
         private static void WaveClear()
         {
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100);
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
             //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100, MinionTypes.All, MinionTeam.Neutral);
             //minions.AddRange(jungleMobs);
 
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && minions.Count >= Getslider("bangplank.menu.farm.eminwc"))
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc"))
             {
                 Keg nbar = NearestKeg(Player.ServerPosition.To2D());
-                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < E.Range || nbar == null) && E.IsReady())
+                
+                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range || LiveBarrels.Count == 0) && E.IsReady() && MinionManager.GetMinions(Player.ServerPosition, Q.Range).Count >= Getslider("bangplank.menu.farm.eminwc"))
                     {
-                        //E.Instance.Ammo
-                        E.Cast(minions.FirstOrDefault().Position);
+                        foreach (var m in minions)
+                        {
+
+                            E.Cast(Player.Position, minions.FirstOrDefault().Position);
+                            break;
+                        }
                     }                                   
 
                 if (LiveBarrels.Count == 0)
