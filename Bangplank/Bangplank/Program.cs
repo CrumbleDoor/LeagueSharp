@@ -26,7 +26,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.37";
+        public static String Version = "1.0.1.39";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -73,11 +73,11 @@ namespace Bangplank
             var farmMenu = new Menu("Farm", "bangplank.menu.farm");
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetTooltip("Recommended On for bonus gold").SetValue(true));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlhmana", "Minimum mana for Q lasthit").SetValue(new Slider(10, 0, 100)));
-                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewc", "Use Q on E to waveclear").SetTooltip("Recommended On for bonus gold").SetValue(true));
-                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewcmana", "Minimum mana to use Q on E").SetValue(new Slider(10, 0, 100)));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.ewc", "Use E to waveclear").SetValue(true));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.eminwc", "Minimum minions to use E").SetValue(new Slider(3, 1, 15)));
-                
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewc", "Use Q on E to waveclear").SetTooltip("Recommended On for bonus gold").SetValue(true));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewcmana", "Minimum mana to use Q on E").SetValue(new Slider(10, 0, 100)));
+
             // Misc Menu
             var miscMenu = new Menu("Misc", "bangplank.menu.misc");
                 // Barrel Manager Options
@@ -311,14 +311,14 @@ namespace Bangplank
 
         private static void WaveClear()
         {
-            Keg nbar = NearestKeg(Player.ServerPosition.To2D());
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + explosionRange);
-            //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + explosionRange, MinionTypes.All, MinionTeam.Neutral);
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100);
+            //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100, MinionTypes.All, MinionTeam.Neutral);
             //minions.AddRange(jungleMobs);
 
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && minions.Count >= Getslider("bangplank.menu.farm.eminwc"))
-            {                                
-                    if ((Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range + explosionRange || LiveBarrels.Count == 0) && E.IsReady())
+            {
+                Keg nbar = NearestKeg(Player.ServerPosition.To2D());
+                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < E.Range || LiveBarrels.Count == 0) && E.IsReady())
                     {
                         //E.Instance.Ammo
                         E.Cast(minions.FirstOrDefault().Position);
@@ -338,7 +338,7 @@ namespace Bangplank
                 {
                     Q.Cast(nbar.KegObj);
                 }
-                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Player.AttackRange && nbar.KegObj.Health < 2)
+                if (nbar.KegObj.Distance(Player) < Player.AttackRange && nbar.KegObj.Health < 2)
                 {
                     Player.IssueOrder(GameObjectOrder.AttackUnit, nbar.KegObj);
                 }
