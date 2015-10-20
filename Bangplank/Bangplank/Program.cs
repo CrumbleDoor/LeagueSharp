@@ -321,12 +321,12 @@ namespace Bangplank
                 
                 if ((Player.ServerPosition.Distance(nbar.KegObj.Position) > E.Range || LiveBarrels.Count == 0) && E.IsReady() && MinionManager.GetMinions(Player.ServerPosition, Q.Range).Count >= Getslider("bangplank.menu.farm.eminwc"))
                     {
-                        foreach (var m in minions)
-                        {
+                        
+                        
 
-                            E.Cast(Player.Position, minions.FirstOrDefault().Position);
-                            break;
-                        }
+                            E.Cast(MinionManager.GetMinions(Q.Range).FirstOrDefault());
+                            
+                        
                     }                                   
 
                 if (LiveBarrels.Count == 0)
