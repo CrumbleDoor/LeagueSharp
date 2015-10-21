@@ -27,7 +27,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.2.10";
+        public static String Version = "1.0.2.13";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -419,7 +419,7 @@ namespace Bangplank
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && E.IsReady())
             {
                 var posE = E.GetCircularFarmLocation(minions, explosionRange);
-                if (posE.MinionsHit > Getslider("bangplank.menu.farm.eminwc") && (LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range) && E.Instance.Ammo > Getslider("bangplank.menu.misc.barrelmanager.stacks"))
+                if (posE.MinionsHit > Getslider("bangplank.menu.farm.eminwc") && (LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo > Getslider("bangplank.menu.misc.barrelmanager.stacks"))
                 {
                     E.Cast(posE.Position);
                 }
@@ -434,21 +434,35 @@ namespace Bangplank
                 }
             }
 
-            if (GetBool("bangplank.menu.farm.qewc") && 
-                    Player.ManaPercent > Getslider("bangplank.menu.farm.qewcmana") && 
-                    Q.IsReady() &&
-                    Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) && 
-                    NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                    NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange)
-                    Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
+            if (GetBool("bangplank.menu.farm.qewc") &&
+                Player.ManaPercent > Getslider("bangplank.menu.farm.qewcmana") &&
+                Q.IsReady() &&
+                Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) &&
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange)
+            {
+                Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
+            }
+            if (Player.ServerPosition.Distance(NearestKeg(Player.ServerPosition.To2D()).KegObj.Position) <
+                Player.AttackRange &&
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.IsTargetable &&
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.IsValidTarget())
+            {
+                Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
+            }
+            if ((LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range) &&
+                E.Instance.Ammo < 1 && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
+            {
+                foreach (var m in minions)
+                {
+                    if (m.Health < Player.GetSpellDamage(m, SpellSlot.Q))
+                    {
+                        Q.CastOnUnit(m);
+                    }
+                }
+            }
 
-                if (Player.ServerPosition.Distance(NearestKeg(Player.ServerPosition.To2D()).KegObj.Position) <
-                    Player.AttackRange &&
-                    NearestKeg(Player.ServerPosition.To2D()).KegObj.IsTargetable &&
-                    NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                    NearestKeg(Player.ServerPosition.To2D()).KegObj.IsValidTarget())
-
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
 
             // Items to clear
             if (GetBool("bangplank.menu.item.hydra") &&
