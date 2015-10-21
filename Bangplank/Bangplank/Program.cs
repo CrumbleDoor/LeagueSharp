@@ -27,7 +27,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.2.4";
+        public static String Version = "1.0.2.10";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -42,7 +42,7 @@ namespace Bangplank
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
-
+        // Devs, be aware you might have a heart attack by looking at organisation of this assembly 
         private static void MenuIni()
         {
             // Main Menu
@@ -158,7 +158,7 @@ namespace Bangplank
             _menu.AddToMainMenu();
         }
 
-// Devs, be aware you might have a heart attack by looking at organisation of this assembly 
+
         private static void Game_OnGameLoad(EventArgs Args)
         {
             if (ObjectManager.Player.ChampionName != championName)
@@ -368,7 +368,7 @@ namespace Bangplank
                 }
             }
             //Extend if possible
-            if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13))
+            if (((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13)) && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
             {
                 if (target != null)
                 {
@@ -402,8 +402,8 @@ namespace Bangplank
                 HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(800) >= 1) != null)
             {
                 R.CastIfWillHit(
-                    HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
-                    Getslider("bangplank.menu.combo.rmin"));
+                   HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
+                   Getslider("bangplank.menu.combo.rmin"));
             }
             BarrelManager();
                       
