@@ -26,7 +26,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.41";
+        public static String Version = "1.0.1.42";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -340,7 +340,7 @@ namespace Bangplank
                     Q.IsReady() &&
                     Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) && 
                     NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                    NearestKeg(Player.ServerPosition.To2D()).KegObj.GetEnemiesInRange(explosionRange).Count >= 1)
+                    (NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(jungleMobs.FirstOrDefault()) <= explosionRange))
 
                     Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
 
