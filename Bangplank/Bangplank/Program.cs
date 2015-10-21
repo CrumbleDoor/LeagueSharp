@@ -77,7 +77,7 @@ namespace Bangplank
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlh", "Use Q to lasthit").SetTooltip("Recommended On for bonus gold").SetValue(true));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qlhmana", "Minimum mana for Q lasthit").SetValue(new Slider(10, 0, 100)));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.ewc", "Use E to Laneclear & Jungle").SetValue(true));
-                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.eminwc", "Minimum minions to use E").SetTooltip("If jungle mobs, it won't block E usage under value").SetValue(new Slider(3, 1, 15)));
+                farmMenu.AddItem(new MenuItem("bangplank.menu.farm.eminwc", "Minimum minions to use E").SetTooltip("If jungle mobs, it won't block E usage under value").SetValue(new Slider(5, 1, 15)));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewc", "Use Q on E to clear").SetTooltip("Recommended On for bonus gold").SetValue(true));
                 farmMenu.AddItem(new MenuItem("bangplank.menu.farm.qewcmana", "Minimum mana to use Q on E").SetValue(new Slider(10, 0, 100)));
 
@@ -340,7 +340,34 @@ namespace Bangplank
                 {
                     E.Cast(Player.ServerPosition);
                 }
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 3)
+                {
+                    E.Cast(ePrediction);
+                }
             }
+            if (R.Level == 2 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && E.IsReady()) // 4 Keg
+            {
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo == 4)
+                {
+                    E.Cast(Player.ServerPosition);
+                }
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 4)
+                {
+                    E.Cast(ePrediction);
+                }
+            }
+            if (R.Level == 3 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && E.IsReady()) // 5 Keg
+            {
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo == 5)
+                {
+                    E.Cast(Player.ServerPosition);
+                }
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 5)
+                {
+                    E.Cast(ePrediction);
+                }
+            }
+            //Extend if possible
             if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13))
             {
                 if (target != null)
