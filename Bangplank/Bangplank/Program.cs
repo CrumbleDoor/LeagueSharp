@@ -286,7 +286,7 @@ namespace Bangplank
             var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
             
             if (target == null) return;
-            if (E.Instance.Ammo == 0 && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
+            if ((E.Instance.Ammo == 0 || E.Level < 1) && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
             {
                 Q.CastOnUnit(target);
             }
