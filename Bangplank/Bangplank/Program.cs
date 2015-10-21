@@ -284,29 +284,8 @@ namespace Bangplank
         {
             var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.IsInvulnerable));
             var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
-            
-            if (target == null) return;
-            if ((E.Instance.Ammo == 0 || E.Level < 1) && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
-            {
-                Q.CastOnUnit(target);
-            }
-            // TODO [WIP] E mechanics will be improved
-            if (Player.Level < 6 && E.IsReady() && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range)) // 2 keg
-            {
-                E.Cast(ePrediction);
-            }
-            if (Player.Level < 11 && Player.Level >= 6)
-            {
-                
-            }
 
-            if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
-                 HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1) != null)           
-                R.CastIfWillHit(HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
-                    Getslider("bangplank.menu.combo.rmin"));
-            
-            BarrelManager();
-                      
+
             // ITEMS
             if (GetBool("bangplank.menu.item.youmuu") && HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
             {
@@ -317,7 +296,7 @@ namespace Bangplank
                         LeagueSharp.Common.Items.UseItem(3142); //youmuu gb
                     }
                 }
-            }           
+            }
             if (GetBool("bangplank.menu.item.hydra") && HeroManager.Enemies != null &&
                 LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
             {
@@ -340,6 +319,36 @@ namespace Bangplank
                     }
                 }
             }
+
+
+
+
+            if (target == null) return;
+            if ((E.Instance.Ammo == 0 || E.Level < 1) && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
+            {
+                Q.CastOnUnit(target);
+            }
+            // TODO [WIP] E mechanics will be improved
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.Level < 6 && E.IsReady() && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range)) // 2 keg
+            {
+                E.Cast(ePrediction);
+            }
+            if (Player.Level < 11 && Player.Level >= 6)
+            {
+                
+
+
+            }
+
+            if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
+                HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1) != null)
+            {
+                R.CastIfWillHit(
+                    HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
+                    Getslider("bangplank.menu.combo.rmin"));
+            }
+            BarrelManager();
+                      
         }
 
         private static void WaveClear()
