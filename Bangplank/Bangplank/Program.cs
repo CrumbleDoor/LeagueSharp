@@ -371,7 +371,7 @@ namespace Bangplank
             if (Player.GetEnemiesInRange(E.Range).Count < 3)
             {
                 if (((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) ||
-                     (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 &&
+                     (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health <3 &&
                       Player.Level >= 13)) && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
                 {
                     if (target != null)
@@ -380,7 +380,7 @@ namespace Bangplank
                         if (nbar.KegObj.Distance(prediction) < linkRange)
                         {
                             E.Cast(prediction);
-                            if (Player.Level < 13 || nbar.KegObj.Health < 2 && Player.Level >= 13)
+                            if (Player.Level < 13)
                             {
                                 Utility.DelayAction.Add((int) (Game.Ping), () =>
                                 {
@@ -389,7 +389,7 @@ namespace Bangplank
                                     );
                             }
                             // Faster cast
-                            if (Player.Level >= 13 && nbar.KegObj.Health == 2)
+                            if (Player.Level >= 13)
                             {
                                 Utility.DelayAction.Add((int) (400 - Game.Ping), () =>
                                 {
