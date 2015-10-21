@@ -26,7 +26,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.2.3";
+        public static String Version = "1.0.2.4";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -56,9 +56,11 @@ namespace Bangplank
             TargetSelector.AddToMenu(targetSelectorMenu);
 
             // Combo Menu
-            var comboMenu = new Menu("Combo", "bangplank.menu.combo");  
-                comboMenu.AddItem(new MenuItem("bangplank.menu.combo.q", "Use Q").SetValue(true));
-                comboMenu.AddItem(new MenuItem("bangplank.menu.combo.e", "Use E").SetValue(true));
+            var comboMenu = new Menu("Combo", "bangplank.menu.combo");
+                comboMenu.AddItem(new MenuItem("bangplank.menu.combo.q", "Use Q = ON"));
+                comboMenu.AddItem(new MenuItem("bangplank.menu.combo.e", "Use E = ON"));
+                comboMenu.AddItem(new MenuItem("bangplank.menu.combo.r", "Use R").SetValue(true));
+                comboMenu.AddItem(new MenuItem("bangplank.menu.combo.rmin", "Minimum enemies to cast R").SetTooltip("Minimum enemies to hit with R in combo").SetValue(new Slider(2, 1, 5)));
             
             // Harass Menu
             var harassMenu = new Menu("Harass", "bangplank.menu.harass");            
@@ -84,7 +86,7 @@ namespace Bangplank
                 var barrelManagerMenu = new Menu("Barrel Manager","bangplank.menu.misc.barrelmanager");
                     barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.edisabled", "Block E usage").SetTooltip("If on, won't use E").SetValue(false));
                     barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.stacks", "Number of stacks to keep").SetTooltip("If Set to 0, it won't keep any stacks; Stacks are used in combo/harass").SetValue(new Slider(1, 0, 4)));
-            barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.autoboom", "Auto explode when enemy in explosion range").SetTooltip("Will auto Q on barrels that are near enemies").SetValue(true));
+                    barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.autoboom", "Auto explode when enemy in explosion range").SetTooltip("Will auto Q on barrels that are near enemies").SetValue(true));
 
                 // Cleanser W Manager Menu
                 var cleanserManagerMenu = new Menu("W cleanser", "bangplank.menu.misc.cleansermanager");
@@ -108,12 +110,13 @@ namespace Bangplank
                     swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.bullshit", "Say bullshit if Triple or +").SetTooltip("Example: My swaggness, keep me safe nabs").SetValue(false));
                     swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.acedance", "Spam Dance on Ace").SetValue(false));
 
-            miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetTooltip("Enable auto W heal(won't cancel recall if low)").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.wheal", "Use W to heal").SetTooltip("Enable auto W heal(won't cancel recall if low)").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healmin", "Health %").SetTooltip("If under, will use W").SetValue(new Slider(30, 0, 100)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum Mana %").SetTooltip("Minimum mana to use W heal").SetValue(new Slider(35, 0, 100)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetTooltip("If on, will auto Q to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(true));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.fleekey", "[WIP] Flee").SetValue(new KeyBind(65, KeyBindType.Press)));
             
             // Items Manager Menu
             var itemManagerMenu = new Menu("Items Manager", "bangplank.menu.item");
@@ -247,7 +250,12 @@ namespace Bangplank
                     break;
                 case Orbwalking.OrbwalkingMode.None:
                     qautoallowed = true;
+                    // flee maybe inc bogue
                     break;
+            }
+            if (_menu.Item("bangplank.menu.misc.fleekey").GetValue<KeyBind>().Active)
+            {
+                // Flee();
             }
             if (GetBool("bangplank.menu.misc.cleansermanager.enabled"))
             {
@@ -274,13 +282,28 @@ namespace Bangplank
 
         private static void Combo()
         {
-            var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.PhysicalImmune || e.IsInvulnerable));
             var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
-            // TODO [WIP]
+            
+            if (target == null) return;
+            if (E.Instance.Ammo == 0 && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
+            {
+                Q.CastOnUnit(target);
+            }
+            // TODO [WIP] E mechanics will be improved
+            if (E.Instance.Ammo < 2 && E.IsReady())
+            {
+                E.Cast(target.Position);
+            }
 
 
-
+            if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
+                 HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40) != null)           
+                R.CastIfWillHit(HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40),
+                    Getslider("bangplank.menu.combo.rmin"));
+            
             BarrelManager();
+                      
             // ITEMS
             if (GetBool("bangplank.menu.item.youmuu") && HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
             {
@@ -530,7 +553,7 @@ namespace Bangplank
                             // Prevent overkill
                             if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q) && Q.IsInRange(ks)) return;
 
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*8 && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*7 && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
                                 
