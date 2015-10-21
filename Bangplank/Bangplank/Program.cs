@@ -301,7 +301,7 @@ namespace Bangplank
             }
 
             if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
-                 HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40) != null)           
+                 HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1) != null)           
                 R.CastIfWillHit(HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
                     Getslider("bangplank.menu.combo.rmin"));
             
