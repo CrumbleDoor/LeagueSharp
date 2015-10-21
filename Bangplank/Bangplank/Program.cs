@@ -27,7 +27,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.2.15";
+        public static String Version = "1.0.3.0";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -68,8 +68,8 @@ namespace Bangplank
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetTooltip("If disabled, it won't block EQ usage").SetValue(true));                
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass").SetTooltip("Tip: Place your first barrel in a bush"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then wait it will automatically"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "place E in range of 1st barrel + Q to harass enemy").SetTooltip("Tip: Place your first barrel in a bush"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(20, 0, 100)));
 
             // Farm Menu
@@ -103,7 +103,7 @@ namespace Bangplank
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.exhaust", "Exhaust").SetTooltip("Will only remove Slow").SetValue(false));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.suppression", "Supression").SetValue(true));
 
-                // SwagPlank Menu ( Trolling functions ), I know it's useless, but fuck The Police. WIP
+                // SwagPlank Menu ( Trolling functions ), I know it's useless, but fuck The Police. [WIP]
                 var swagplankMenu = new Menu("[WIP] SwagPlank", "bangplank.menu.misc.swagplank");
                     swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.separator", "== Better not using these functions in ranked =="));
                     swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.enabled", "SwagPlank").SetTooltip("Enable SwagPlank features").SetValue(false));
@@ -438,6 +438,22 @@ namespace Bangplank
             var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
             minions.AddRange(jungleMobs);
 
+            // Items to clear
+            if (GetBool("bangplank.menu.item.hydra") &&
+                (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
+                LeagueSharp.Common.Items.HasItem(3074) &&
+                LeagueSharp.Common.Items.CanUseItem(3074))
+            {
+                LeagueSharp.Common.Items.UseItem(3074); //hydra, range of active = 400
+            }
+            if (GetBool("bangplank.menu.item.tiamat") &&
+                (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
+                LeagueSharp.Common.Items.HasItem(3077) &&
+                LeagueSharp.Common.Items.CanUseItem(3077))
+            {
+                LeagueSharp.Common.Items.UseItem(3077); //tiamat, range of active = 400
+            }
+
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && E.IsReady())
             {
                 var posE = E.GetCircularFarmLocation(minions, explosionRange);
@@ -461,8 +477,7 @@ namespace Bangplank
                 Q.IsReady() &&
                 Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) &&
                 NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange
-                &&  minions.FirstOrDefault().Health <= Player.GetSpellDamage(minions.FirstOrDefault(), SpellSlot.E))
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange)
             {
                 Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
             }
@@ -484,23 +499,6 @@ namespace Bangplank
                         Q.CastOnUnit(m);
                     }
                 }
-            }
-
-
-            // Items to clear
-            if (GetBool("bangplank.menu.item.hydra") &&
-                (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
-                LeagueSharp.Common.Items.HasItem(3074) && 
-                LeagueSharp.Common.Items.CanUseItem(3074))
-            {
-                LeagueSharp.Common.Items.UseItem(3074); //hydra, range of active = 400
-            }
-            if (GetBool("bangplank.menu.item.tiamat") && 
-                (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
-                LeagueSharp.Common.Items.HasItem(3077) &&
-                LeagueSharp.Common.Items.CanUseItem(3077))
-            {
-                LeagueSharp.Common.Items.UseItem(3077); //tiamat, range of active = 400
             }
         }
 
@@ -538,7 +536,7 @@ namespace Bangplank
                 if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > Q.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
 
-            // Extended EQ, done but still some bugs remaining, trying to fix them #TODO
+            // Extended EQ, done but still some bugs remaining, going to fix them #TODO
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
                 if (LiveBarrels.Count == 0) return;             
