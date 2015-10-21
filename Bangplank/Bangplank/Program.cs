@@ -313,7 +313,7 @@ namespace Bangplank
         {
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
             var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
-            
+            minions.AddRange(jungleMobs);
 
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && E.IsReady())
             {
@@ -340,7 +340,7 @@ namespace Bangplank
                     Q.IsReady() &&
                     Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) && 
                     NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                    (NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange || jungleMobs != null))
+                    NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange)
                     Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
 
                 if (Player.ServerPosition.Distance(NearestKeg(Player.ServerPosition.To2D()).KegObj.Position) <
@@ -353,13 +353,17 @@ namespace Bangplank
 
 
 
-            if (GetBool("bangplank.menu.item.hydra") && MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
-                LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
+            if (GetBool("bangplank.menu.item.hydra") &&
+                (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
+                LeagueSharp.Common.Items.HasItem(3074) && 
+                LeagueSharp.Common.Items.CanUseItem(3074))
             {
                 LeagueSharp.Common.Items.UseItem(3074); //hydra, range of active = 400
             }
-            if (GetBool("bangplank.menu.item.tiamat") && MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
-    LeagueSharp.Common.Items.HasItem(3077) && LeagueSharp.Common.Items.CanUseItem(3077))
+            if (GetBool("bangplank.menu.item.tiamat") && 
+                (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
+                LeagueSharp.Common.Items.HasItem(3077) &&
+                LeagueSharp.Common.Items.CanUseItem(3077))
             {
                 LeagueSharp.Common.Items.UseItem(3077); //tiamat, range of active = 400
             }
