@@ -26,7 +26,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.2.1";
+        public static String Version = "1.0.2.3";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -556,7 +556,9 @@ namespace Bangplank
                 if (Q.IsReady() && Q.IsInRange(k.KegObj) && k.KegObj.GetEnemiesInRange(explosionRange).Count > 0 && k.KegObj.Health < 2)
                     Q.Cast(k.KegObj);
                 if (Player.Distance(k.KegObj) <= Player.AttackRange &&
-                    k.KegObj.GetEnemiesInRange(explosionRange).Count > 0 && k.KegObj.Health < 2)
+                    k.KegObj.GetEnemiesInRange(explosionRange).Count > 0 && k.KegObj.Health < 2 &&
+                    k.KegObj.IsValidTarget() &&
+                    k.KegObj.IsTargetable)
                     Player.IssueOrder(GameObjectOrder.AttackUnit, k.KegObj);
             }
                        
