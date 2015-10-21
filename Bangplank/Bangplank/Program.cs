@@ -35,7 +35,7 @@ namespace Bangplank
         private static float explosionRange = 390;
         private static float linkRange = 650;
         private static List<Keg>  LiveBarrels = new List<Keg>();
-        
+        private static bool qautoallowed = true;
         
          private static void Main(string[] args)
         {
@@ -231,15 +231,22 @@ namespace Bangplank
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     Combo();
+                    qautoallowed = false;
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     WaveClear();
+                    qautoallowed = true;
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Mixed();
+                    qautoallowed = false;
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     LastHit();
+                    qautoallowed = true;
+                    break;
+                case Orbwalking.OrbwalkingMode.None:
+                    qautoallowed = true;
                     break;
             }
             if (GetBool("bangplank.menu.misc.cleansermanager.enabled"))
@@ -254,7 +261,7 @@ namespace Bangplank
             {
                 KillSteal();
             }
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.misc.barrelmanager.autoboom"))
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.misc.barrelmanager.autoboom") && qautoallowed)
             {
                 BarrelManager();
             }
@@ -368,6 +375,7 @@ namespace Bangplank
 
         private static void Mixed()
         {
+            
             // harass
             var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
             // Q lasthit minions
