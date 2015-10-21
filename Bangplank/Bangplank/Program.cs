@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp.Common;
 using SharpDX;
+using Color = System.Drawing.Color;
 
 // By baballev, made with love and swagg
 // Up to date for 5.20
@@ -34,7 +35,7 @@ namespace Bangplank
         private static Spell Q, W, E, R;
         private static float explosionRange = 390;
         private static float linkRange = 650;
-        private static List<Keg>  LiveBarrels = new List<Keg>();
+        private static List<Keg>  LiveBarrels = new List<Keg>(); // Keg means powder keg, = barrel
         private static bool qautoallowed = true;
         
          private static void Main(string[] args)
@@ -157,6 +158,7 @@ namespace Bangplank
             _menu.AddToMainMenu();
         }
 
+// Devs, be aware you might have a heart attack by looking at organisation of this assembly 
         private static void Game_OnGameLoad(EventArgs Args)
         {
             if (ObjectManager.Player.ChampionName != championName)
@@ -212,11 +214,11 @@ namespace Bangplank
             }
             if (GetBool("bangplank.menu.drawing.q") && Q.Level > 0)
             {
-                Render.Circle.DrawCircle(Player.Position, Q.Range, System.Drawing.Color.SteelBlue);
+                Render.Circle.DrawCircle(Player.Position, Q.Range, Color.FromArgb(38, 126, 188));
             }
             if (GetBool("bangplank.menu.drawing.e") && E.Level > 0)
             {
-                Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.Red);
+                Render.Circle.DrawCircle(Player.Position, E.Range, System.Drawing.Color.BlueViolet);
             }
             
         }
@@ -284,7 +286,7 @@ namespace Bangplank
         {
             var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.IsInvulnerable));
             var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
-
+            var nbar = NearestKeg(Player.ServerPosition.To2D());
 
             // ITEMS
             if (GetBool("bangplank.menu.item.youmuu") && HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
@@ -321,24 +323,53 @@ namespace Bangplank
             }
 
 
-            // Really wtf work in progress no sense combo not finished at all
-
+            // random wardafuq e logic op, for sure. (going to be improved)
             if (target == null) return;
             if ((E.Instance.Ammo == 0 || E.Level < 1) && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
             {
                 Q.CastOnUnit(target);
             }
             // TODO [WIP] E mechanics will be improved
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.Level < 6 && E.IsReady() && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range)) // 2 keg
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && R.Level == 0 && E.IsReady() && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > E.Range)) // 2 keg
             {
                 E.Cast(ePrediction);
             }
-            if (Player.Level < 11 && Player.Level >= 6)
+            if (R.Level == 1 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && E.IsReady()) // 3 Keg
             {
-                
-
-
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo == 3)
+                {
+                    E.Cast(Player.ServerPosition);
+                }
             }
+            if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13))
+            {
+                if (target != null)
+                {
+                    var prediction = Prediction.GetPrediction(target, 0.8f).CastPosition;
+                    if (nbar.KegObj.Distance(prediction) < linkRange)
+                    {
+                        E.Cast(prediction);
+                        if (Player.Level < 13 || nbar.KegObj.Health < 2 && Player.Level >= 13)
+                        {
+                            Utility.DelayAction.Add((int)(Game.Ping), () =>
+                            {
+                                Q.Cast(nbar.KegObj);
+                            }
+                          );
+                        }
+                        // Faster cast
+                        if (Player.Level >= 13 && nbar.KegObj.Health == 2)
+                        {
+                            Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
+                            {
+                                Q.Cast(nbar.KegObj);
+                            }
+                               );
+                        }
+                    }
+                }
+            }
+
             //TODO need improve
             if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
                 HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(800) >= 1) != null)
@@ -448,7 +479,7 @@ namespace Bangplank
                 if (LiveBarrels.Count == 0) return;             
                 if (nbar == null) return;
                
-                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3 && Player.Level >= 13))
+                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13))
                 {
                     if (target != null)
                     {
@@ -456,12 +487,16 @@ namespace Bangplank
                         if (nbar.KegObj.Distance(prediction) < linkRange)
                         {                          
                             E.Cast(prediction);
-                            if (Player.Level < 13)
-                            {                                
-                                    Q.Cast(nbar.KegObj);                          
+                            if (Player.Level < 13 || nbar.KegObj.Health < 2 && Player.Level >= 13)
+                            {
+                                Utility.DelayAction.Add((int)(Game.Ping), () =>
+                                {
+                                    Q.Cast(nbar.KegObj);
+                                }
+                              );
                             }
                             // Faster cast
-                            if (Player.Level >= 13)
+                            if (Player.Level >= 13 && nbar.KegObj.Health == 2)
                             {
                                 Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
                                 {
@@ -534,7 +569,7 @@ namespace Bangplank
             }
         }
 
-        // Ks logic, - Wtf u sayin? there's no logic here brah - shhh they won't see - stupid moron 
+        // Ks "logic" kappa
         private static void KillSteal()
         {
             var kstarget = HeroManager.Enemies;
