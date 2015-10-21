@@ -42,7 +42,7 @@ namespace Bangplank
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
-        // Devs, be aware you might have a heart attack by looking at organisation of this assembly 
+
         private static void MenuIni()
         {
             // Main Menu
@@ -452,7 +452,7 @@ namespace Bangplank
                 Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
             }
             if ((LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range) &&
-                E.Instance.Ammo < 1 && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
+                E.Instance.Ammo <= Getslider("bangplank.menu.misc.barrelmanager.stacks") && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
             {
                 foreach (var m in minions)
                 {
@@ -644,7 +644,7 @@ namespace Bangplank
 
                             if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*6 && ks.Health > 0)
                             {
-                                var ksposition = Prediction.GetPrediction(ks, 0.9f).CastPosition;
+                                var ksposition = Prediction.GetPrediction(ks, R.Delay).CastPosition;
                                 
                                 if (ksposition.Distance(ks.Position) < 400 && ks.IsMoving)
                                 {
