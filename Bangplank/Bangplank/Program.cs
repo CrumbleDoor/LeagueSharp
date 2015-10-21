@@ -26,7 +26,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.1.42";
+        public static String Version = "1.0.2.1";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -84,6 +84,7 @@ namespace Bangplank
                 var barrelManagerMenu = new Menu("Barrel Manager","bangplank.menu.misc.barrelmanager");
                     barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.edisabled", "Block E usage").SetTooltip("If on, won't use E").SetValue(false));
                     barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.stacks", "Number of stacks to keep").SetTooltip("If Set to 0, it won't keep any stacks; Stacks are used in combo/harass").SetValue(new Slider(1, 0, 4)));
+            barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.autoboom", "Auto explode when enemy in explosion range").SetTooltip("Will auto Q on barrels that are near enemies").SetValue(true));
 
                 // Cleanser W Manager Menu
                 var cleanserManagerMenu = new Menu("W cleanser", "bangplank.menu.misc.cleansermanager");
@@ -253,7 +254,7 @@ namespace Bangplank
             {
                 KillSteal();
             }
-            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
+            if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.misc.barrelmanager.autoboom"))
             {
                 BarrelManager();
             }
@@ -271,7 +272,9 @@ namespace Bangplank
             // TODO [WIP]
 
 
-            // Youmuu GB
+
+            BarrelManager();
+            // ITEMS
             if (GetBool("bangplank.menu.item.youmuu") && HeroManager.Enemies != null && LeagueSharp.Common.Items.HasItem(3142) && LeagueSharp.Common.Items.CanUseItem(3142))
             {
                 foreach (var e in HeroManager.Enemies)
@@ -281,9 +284,7 @@ namespace Bangplank
                         LeagueSharp.Common.Items.UseItem(3142); //youmuu gb
                     }
                 }
-            }
-            
-            // Ravenous Hydra
+            }           
             if (GetBool("bangplank.menu.item.hydra") && HeroManager.Enemies != null &&
                 LeagueSharp.Common.Items.HasItem(3074) && LeagueSharp.Common.Items.CanUseItem(3074))
             {
@@ -295,7 +296,6 @@ namespace Bangplank
                     }
                 }
             }
-            // Tiamat
             if (GetBool("bangplank.menu.item.tiamat") && HeroManager.Enemies != null &&
                LeagueSharp.Common.Items.HasItem(3077) && LeagueSharp.Common.Items.CanUseItem(3077))
             {
@@ -331,9 +331,7 @@ namespace Bangplank
                         E.Cast(jungleMobs.FirstOrDefault().Position);
                     }
                 }
-
             }
-
 
             if (GetBool("bangplank.menu.farm.qewc") && 
                     Player.ManaPercent > Getslider("bangplank.menu.farm.qewcmana") && 
@@ -351,8 +349,7 @@ namespace Bangplank
 
                     Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
 
-
-
+            // Items to clear
             if (GetBool("bangplank.menu.item.hydra") &&
                 (MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 || MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390, MinionTypes.All, MinionTeam.Neutral).Count >= 1) &&
                 LeagueSharp.Common.Items.HasItem(3074) && 
@@ -402,7 +399,7 @@ namespace Bangplank
                 if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > Q.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
 
-            // Extended EQ
+            // Extended EQ, done but still some bugs remaining, trying to fix them #TODO
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
                 if (LiveBarrels.Count == 0) return;             
@@ -522,6 +519,9 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
+                            // Prevent overkill
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q) && Q.IsInRange(ks)) return;
+
                             if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*8 && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
@@ -542,8 +542,16 @@ namespace Bangplank
 
         private static void BarrelManager()
         {
-           
-            
+           if (LiveBarrels.Count == 0) return;
+            foreach (var k in LiveBarrels)
+            {
+                if (Q.IsReady() && Q.IsInRange(k.KegObj) && k.KegObj.GetEnemiesInRange(explosionRange).Count > 0 && k.KegObj.Health < 2)
+                    Q.Cast(k.KegObj);
+                if (Player.Distance(k.KegObj) <= Player.AttackRange &&
+                    k.KegObj.GetEnemiesInRange(explosionRange).Count > 0 && k.KegObj.Health < 2)
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, k.KegObj);
+            }
+                       
         }
 
         private static void Potion()
@@ -578,8 +586,8 @@ namespace Bangplank
             if (GetBool("bangplank.menu.item.potion.cryst") &&
             ((Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") &&
             Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana")) ||
-            Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") * 0.5 ||
-            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") * 0.5) &&
+            Player.HealthPercent <= Getslider("bangplank.menu.item.potion.crysthealth") / 2 ||
+            Player.ManaPercent <= Getslider("bangplank.menu.item.potion.crystmana") / 2) &&
             LeagueSharp.Common.Items.HasItem(2041))
             {
                 if (Player.HasBuff("ItemCrystalFlask")) return;
