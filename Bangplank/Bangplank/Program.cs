@@ -99,7 +99,7 @@ namespace Bangplank
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.exhaust", "Exhaust").SetTooltip("Will only remove Slow").SetValue(false));
                     cleanserManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.cleansermanager.suppression", "Supression").SetValue(true));
 
-                // SwagPlank Menu ( Trolling functions ), I know it's useless, but fuck The Police
+                // SwagPlank Menu ( Trolling functions ), I know it's useless, but fuck The Police. WIP
                 var swagplankMenu = new Menu("[WIP] SwagPlank", "bangplank.menu.misc.swagplank");
                     swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.separator", "== Better not using these functions in ranked =="));
                     swagplankMenu.AddItem(new MenuItem("bangplank.menu.misc.swagplank.enabled", "SwagPlank").SetTooltip("Enable SwagPlank features").SetValue(false));
@@ -322,9 +322,22 @@ namespace Bangplank
                 {
                     E.Cast(posE.Position);
                 }
-                if (GetBool("bangplank.menu.farm.qewc") && Q.IsReady() &&
-                    Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj))
+                if (GetBool("bangplank.menu.farm.qewc") && 
+                    Player.ManaPercent > Getslider("bangplank.menu.farm.qewcmana") && 
+                    Q.IsReady() &&
+                    Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) && 
+                    NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2)
+
                     Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
+
+                if (Player.ServerPosition.Distance(NearestKeg(Player.ServerPosition.To2D()).KegObj.Position) <
+                    Player.AttackRange &&
+                    NearestKeg(Player.ServerPosition.To2D()).KegObj.IsTargetable &&
+                    NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
+                    NearestKeg(Player.ServerPosition.To2D()).KegObj.IsValidTarget())
+
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
+
 
             }
 
@@ -335,7 +348,7 @@ namespace Bangplank
                 LeagueSharp.Common.Items.UseItem(3074); //hydra, range of active = 400
             }
             if (GetBool("bangplank.menu.item.tiamat") && MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 390).Count > 2 &&
-    LeagueSharp.Common.Items.HasItem(3077) && LeagueSharp.Common.Items.CanUseItem(3074))
+    LeagueSharp.Common.Items.HasItem(3077) && LeagueSharp.Common.Items.CanUseItem(3077))
             {
                 LeagueSharp.Common.Items.UseItem(3077); //tiamat, range of active = 400
             }
