@@ -177,7 +177,7 @@ namespace Bangplank
             R = new Spell(SpellSlot.R);
             Q.SetTargetted(0.25f, 2150f);
             E.SetSkillshot(0.5f, 40, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            R.SetSkillshot(1f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.9f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
             Game.OnUpdate += Logic;
             Drawing.OnDraw += Draw;
             GameObject.OnCreate += GameObjCreate;
@@ -382,11 +382,7 @@ namespace Bangplank
                             E.Cast(prediction);
                             if (Player.Level < 13)
                             {
-                                Utility.DelayAction.Add((int) (Game.Ping), () =>
-                                {
                                     Q.Cast(nbar.KegObj);
-                                }
-                                    );
                             }
                             // Faster cast
                             if (Player.Level >= 13)
@@ -525,26 +521,24 @@ namespace Bangplank
                 {
                     if (target != null)
                     {
-                        var prediction = Prediction.GetPrediction(target, 0.8f).CastPosition;                     
-                        if (nbar.KegObj.Distance(prediction) < linkRange)
-                        {                          
-                            E.Cast(prediction);
-                            if (Player.Level < 13 || nbar.KegObj.Health < 2 && Player.Level >= 13)
+                        {
+                            var prediction = Prediction.GetPrediction(target, 0.8f).CastPosition;
+                            if (nbar.KegObj.Distance(prediction) < linkRange)
                             {
-                                Utility.DelayAction.Add((int)(Game.Ping), () =>
+                                E.Cast(prediction);
+                                if (Player.Level < 13)
                                 {
                                     Q.Cast(nbar.KegObj);
                                 }
-                              );
-                            }
-                            // Faster cast
-                            if (Player.Level >= 13 && nbar.KegObj.Health == 2)
-                            {
-                                Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
+                                // Faster cast
+                                if (Player.Level >= 13)
                                 {
-                                    Q.Cast(nbar.KegObj);
+                                    Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
+                                    {
+                                        Q.Cast(nbar.KegObj);
+                                    }
+                                        );
                                 }
-                                   );
                             }
                         }
                     }
