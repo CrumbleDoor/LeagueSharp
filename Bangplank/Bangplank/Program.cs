@@ -340,8 +340,18 @@ namespace Bangplank
                 {
                     E.Cast(Player.ServerPosition);
                 }
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo <= 3)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo < 3)
                 {
+                    foreach (var k in LiveBarrels)
+                    {
+                        if (k.KegObj.GetEnemiesInRange(explosionRange).Count >= 1 && Player.Distance(k.KegObj) < E.Range)
+                        {
+                            BarrelManager();
+                            return;
+
+                        }
+                        
+                    }
                     E.Cast(ePrediction);
                 }
             }
@@ -351,8 +361,16 @@ namespace Bangplank
                 {
                     E.Cast(Player.ServerPosition);
                 }
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo <= 3)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo < 3)
                 {
+                    foreach (var k in LiveBarrels)
+                    {
+                        if (k.KegObj.GetEnemiesInRange(explosionRange).Count >= 1 && Player.Distance(k.KegObj) < E.Range)
+                        {
+                            BarrelManager();
+                            return;
+                        }
+                    }
                     E.Cast(ePrediction);
                 }
             }
@@ -362,8 +380,16 @@ namespace Bangplank
                 {
                     E.Cast(Player.ServerPosition);
                 }
-                if (((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo <= 3) || Player.GetEnemiesInRange(E.Range).Count >= 3)
+                if (((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo < 3) || Player.GetEnemiesInRange(E.Range).Count >= 3)
                 {
+                    foreach (var k in LiveBarrels)
+                    {
+                        if (k.KegObj.GetEnemiesInRange(explosionRange).Count >= 1 && Player.Distance(k.KegObj) < E.Range)
+                        {
+                            BarrelManager();
+                            return;
+                        }
+                    }
                     E.Cast(ePrediction);
                 }
             }
