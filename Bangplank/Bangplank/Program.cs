@@ -321,7 +321,7 @@ namespace Bangplank
             }
 
 
-
+            // Really wtf work in progress no sense combo not finished at all
 
             if (target == null) return;
             if ((E.Instance.Ammo == 0 || E.Level < 1) && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
@@ -339,9 +339,9 @@ namespace Bangplank
 
 
             }
-
+            //TODO need improve
             if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
-                HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1) != null)
+                HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(800) >= 1) != null)
             {
                 R.CastIfWillHit(
                     HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
