@@ -461,7 +461,8 @@ namespace Bangplank
                 Q.IsReady() &&
                 Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) &&
                 NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange)
+                NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange
+                &&  minions.FirstOrDefault().Health <= Player.GetSpellDamage(minions.FirstOrDefault(), SpellSlot.E))
             {
                 Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
             }
@@ -606,7 +607,11 @@ namespace Bangplank
             if (W.IsReady() && Player.HealthPercent <= Getslider("bangplank.menu.misc.healmin") &&
                 Player.ManaPercent >= Getslider("bangplank.menu.misc.healminmana"))
             {
-                W.Cast();
+                Utility.DelayAction.Add((int)( 100 + Game.Ping), () =>
+                {
+                    W.Cast();
+                }
+                );
             }
 
 
@@ -680,6 +685,7 @@ namespace Bangplank
             }
         }
 
+        // auto barrel activator
         private static void BarrelManager()
         {
            if (LiveBarrels.Count == 0) return;
