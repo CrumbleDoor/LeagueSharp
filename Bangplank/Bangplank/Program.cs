@@ -282,7 +282,7 @@ namespace Bangplank
 
         private static void Combo()
         {
-            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.IsDead || e.IsInvulnerable));
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.IsInvulnerable));
             var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
             
             if (target == null) return;
@@ -302,7 +302,7 @@ namespace Bangplank
 
             if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
                  HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40) != null)           
-                R.CastIfWillHit(HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40),
+                R.CastIfWillHit(HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
                     Getslider("bangplank.menu.combo.rmin"));
             
             BarrelManager();
