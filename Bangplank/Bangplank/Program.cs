@@ -282,7 +282,7 @@ namespace Bangplank
 
         private static void Combo()
         {
-            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.PhysicalImmune || e.IsInvulnerable));
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical, true, HeroManager.Enemies.Where(e => e.IsDead || e.IsInvulnerable));
             var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
             
             if (target == null) return;
@@ -291,11 +291,14 @@ namespace Bangplank
                 Q.CastOnUnit(target);
             }
             // TODO [WIP] E mechanics will be improved
-            if (E.Instance.Ammo < 2 && E.IsReady())
+            if (Player.Level < 6 && E.IsReady() && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range)) // 2 keg
             {
-                E.Cast(target.Position);
+                E.Cast(ePrediction);
             }
-
+            if (Player.Level < 11 && Player.Level >= 6)
+            {
+                
+            }
 
             if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
                  HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40) != null)           
@@ -555,7 +558,7 @@ namespace Bangplank
 
                             if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*7 && ks.Health > 0)
                             {
-                                var ksposition = Prediction.GetPrediction(ks, 0.7f).CastPosition;
+                                var ksposition = Prediction.GetPrediction(ks, 0.9f).CastPosition;
                                 
                                 if (ksposition.Distance(ks.Position) < 400 && ks.IsMoving)
                                 {
