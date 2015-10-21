@@ -66,7 +66,7 @@ namespace Bangplank
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then it will auto"));
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass"));
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "E in range of 1st barrel + Q to harass").SetTooltip("Tip: Place your first barrel in a bush"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(20, 0, 100)));
 
             // Farm Menu
@@ -83,7 +83,7 @@ namespace Bangplank
                 // Barrel Manager Options
                 var barrelManagerMenu = new Menu("Barrel Manager","bangplank.menu.misc.barrelmanager");
                     barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.edisabled", "Block E usage").SetTooltip("If on, won't use E").SetValue(false));
-                    
+                    barrelManagerMenu.AddItem(new MenuItem("bangplank.menu.misc.barrelmanager.stacks", "Number of stacks to keep").SetTooltip("If Set to 0, it won't keep any stacks; Stacks are used in combo/harass").SetValue(new Slider(1, 0, 4)));
 
                 // Cleanser W Manager Menu
                 var cleanserManagerMenu = new Menu("W cleanser", "bangplank.menu.misc.cleansermanager");
@@ -169,9 +169,9 @@ namespace Bangplank
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E, 980);
             R = new Spell(SpellSlot.R);
-            Q.SetTargetted(0.25f, 2000f);
-            E.SetSkillshot(0.5f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            R.SetSkillshot(0.8f, 200, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.SetTargetted(0.25f, 2150f);
+            E.SetSkillshot(0.5f, 40, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(1f, 100, float.MaxValue, false, SkillshotType.SkillshotCircle);
             Game.OnUpdate += Logic;
             Drawing.OnDraw += Draw;
             GameObject.OnCreate += GameObjCreate;
@@ -267,7 +267,7 @@ namespace Bangplank
         private static void Combo()
         {
             var target = TargetSelector.GetTarget(Q.Range + explosionRange, TargetSelector.DamageType.Physical);
-
+            var ePrediction = Prediction.GetPrediction(target, 1f).CastPosition;
             // TODO [WIP]
 
 
@@ -312,13 +312,13 @@ namespace Bangplank
         private static void WaveClear()
         {
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
-            //var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100, MinionTypes.All, MinionTeam.Neutral);
-            //minions.AddRange(jungleMobs);
+            var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + 100, MinionTypes.All, MinionTeam.Neutral);
+            minions.AddRange(jungleMobs);
 
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && GetBool("bangplank.menu.farm.ewc") && E.IsReady())
             {
                 var posE = E.GetCircularFarmLocation(minions, explosionRange);
-                if (posE.MinionsHit > Getslider("bangplank.menu.farm.eminwc") && (LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range))
+                if (posE.MinionsHit > Getslider("bangplank.menu.farm.eminwc") && (LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range) && E.Instance.Ammo > Getslider("bangplank.menu.misc.barrelmanager.stacks"))
                 {
                     E.Cast(posE.Position);
                 }
@@ -384,7 +384,7 @@ namespace Bangplank
                 )
             {
                 if (LiveBarrels.Count == 0) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
-                if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > E.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
+                if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > Q.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
 
             // Extended EQ
@@ -397,17 +397,13 @@ namespace Bangplank
                 {
                     if (target != null)
                     {
-                        var prediction = Prediction.GetPrediction(target, 0.7f).CastPosition;                     
+                        var prediction = Prediction.GetPrediction(target, 1f).CastPosition;                     
                         if (nbar.KegObj.Distance(prediction) < linkRange)
                         {                          
                             E.Cast(prediction);
                             if (Player.Level < 13)
-                            {
-                                Utility.DelayAction.Add((int) (Game.Ping), () =>
-                                {
-                                    Q.Cast(nbar.KegObj);
-                                }
-                                    );
+                            {                                
+                                    Q.Cast(nbar.KegObj);                          
                             }
                             // Faster cast
                             if (Player.Level >= 13)
@@ -511,10 +507,10 @@ namespace Bangplank
                     {
                         if (ks != null)
                         {
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*8 && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*7 && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.9f).CastPosition;
-
+                                
                                 if (ksposition.Distance(ks.Position) < 400 && ks.IsMoving)
                                 {
                                     ksposition = ks.Position.Extend(ksposition, 450);
