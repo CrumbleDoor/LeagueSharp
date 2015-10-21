@@ -340,8 +340,7 @@ namespace Bangplank
                     Q.IsReady() &&
                     Q.IsInRange(NearestKeg(Player.ServerPosition.To2D()).KegObj) && 
                     NearestKeg(Player.ServerPosition.To2D()).KegObj.Health < 2 &&
-                    (NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange || Player.Distance(jungleMobs.FirstOrDefault()) <= Q.Range))
-
+                    (NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(minions.FirstOrDefault()) <= explosionRange || jungleMobs.Count >= 1))
                     Q.Cast(NearestKeg(Player.ServerPosition.To2D()).KegObj);
 
                 if (Player.ServerPosition.Distance(NearestKeg(Player.ServerPosition.To2D()).KegObj.Position) <
