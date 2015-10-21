@@ -336,74 +336,75 @@ namespace Bangplank
             }
             if (R.Level == 1 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && E.IsReady()) // 3 Keg
             {
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo == 3)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 3)
                 {
                     E.Cast(Player.ServerPosition);
                 }
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 3)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo <= 3)
                 {
                     E.Cast(ePrediction);
                 }
             }
             if (R.Level == 2 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && E.IsReady()) // 4 Keg
             {
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo == 4)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 3)
                 {
                     E.Cast(Player.ServerPosition);
                 }
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 4)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo <= 3)
                 {
                     E.Cast(ePrediction);
                 }
             }
             if (R.Level == 3 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && E.IsReady()) // 5 Keg
             {
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo == 5)
+                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 3 && Player.GetEnemiesInRange(E.Range).Count < 3)
                 {
                     E.Cast(Player.ServerPosition);
                 }
-                if ((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo >= 5)
+                if (((LiveBarrels.Count == 0 || nbar.KegObj.Distance(Player) > Q.Range) && E.Instance.Ammo <= 3) || Player.GetEnemiesInRange(E.Range).Count >= 3)
                 {
                     E.Cast(ePrediction);
                 }
             }
-            //Extend if possible
-            if (((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13)) && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
+            //Extend if possible and if the number of enemies is below 3
+            if (Player.GetEnemiesInRange(E.Range).Count < 3)
             {
-                if (target != null)
+                if (((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) ||
+                     (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 &&
+                      Player.Level >= 13)) && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
                 {
-                    var prediction = Prediction.GetPrediction(target, 0.8f).CastPosition;
-                    if (nbar.KegObj.Distance(prediction) < linkRange)
+                    if (target != null)
                     {
-                        E.Cast(prediction);
-                        if (Player.Level < 13 || nbar.KegObj.Health < 2 && Player.Level >= 13)
+                        var prediction = Prediction.GetPrediction(target, 0.8f).CastPosition;
+                        if (nbar.KegObj.Distance(prediction) < linkRange)
                         {
-                            Utility.DelayAction.Add((int)(Game.Ping), () =>
+                            E.Cast(prediction);
+                            if (Player.Level < 13 || nbar.KegObj.Health < 2 && Player.Level >= 13)
                             {
-                                Q.Cast(nbar.KegObj);
+                                Utility.DelayAction.Add((int) (Game.Ping), () =>
+                                {
+                                    Q.Cast(nbar.KegObj);
+                                }
+                                    );
                             }
-                          );
-                        }
-                        // Faster cast
-                        if (Player.Level >= 13 && nbar.KegObj.Health == 2)
-                        {
-                            Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
+                            // Faster cast
+                            if (Player.Level >= 13 && nbar.KegObj.Health == 2)
                             {
-                                Q.Cast(nbar.KegObj);
+                                Utility.DelayAction.Add((int) (400 - Game.Ping), () =>
+                                {
+                                    Q.Cast(nbar.KegObj);
+                                }
+                                    );
                             }
-                               );
                         }
                     }
                 }
             }
-
-            //TODO need improve
-            if (GetBool("bangplank.menu.combo.r") && R.IsReady() &&
-                HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(800) >= 1) != null)
+            
+            if (GetBool("bangplank.menu.combo.r") && R.IsReady() && target.GetEnemiesInRange(600).Count + 1 > Getslider("bangplank.menu.combo.rmin") && target.HealthPercent < 30)
             {
-                R.CastIfWillHit(
-                   HeroManager.Enemies.FirstOrDefault(e => e.HealthPercent < 40 && e.CountAlliesInRange(500) >= 1),
-                   Getslider("bangplank.menu.combo.rmin"));
+                R.Cast(Prediction.GetPrediction(target, R.Delay).CastPosition);
             }
             BarrelManager();
                       
@@ -627,7 +628,7 @@ namespace Bangplank
                             // Prevent overkill
                             if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.Q) && Q.IsInRange(ks)) return;
 
-                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*7 && ks.Health > 0)
+                            if (ks.Health <= Player.GetSpellDamage(ks, SpellSlot.R)*6 && ks.Health > 0)
                             {
                                 var ksposition = Prediction.GetPrediction(ks, 0.9f).CastPosition;
                                 
