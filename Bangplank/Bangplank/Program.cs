@@ -27,7 +27,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.2.13";
+        public static String Version = "1.0.2.15";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
