@@ -404,13 +404,9 @@ namespace Bangplank
                         if (nbar.KegObj.Distance(prediction) < linkRange)
                         {
                             E.Cast(prediction);
-                            if (Player.Level < 7 && nbar.KegObj.Health == 2)
+                            if (Player.Level < 7 )
                             {
-                                Utility.DelayAction.Add((int)(1580 - Game.Ping), () =>
-                                {
-                                    Q.Cast(nbar.KegObj);
-                                }
-                                   );
+                          
                             }
                             if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                             {
@@ -568,11 +564,7 @@ namespace Bangplank
                                 E.Cast(prediction);
                                 if (Player.Level < 7 && nbar.KegObj.Health == 2)
                                 {
-                                    Utility.DelayAction.Add((int)(1580 - Game.Ping), () =>
-                                    {
-                                        Q.Cast(nbar.KegObj);
-                                    }
-                                       );
+                                    
                                 }
                                 if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                                 {
