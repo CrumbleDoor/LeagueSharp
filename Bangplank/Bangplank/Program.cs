@@ -9,7 +9,7 @@ using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-// By baballev, made with love and swagg
+// made with love
 // Up to date for 5.20
 
 // -------------------------------------------
@@ -323,13 +323,13 @@ namespace Bangplank
             }
 
 
-            // random wardafuq e logic op, for sure. (going to be improved)
+           
             if (target == null) return;
             if ((E.Instance.Ammo == 0 || E.Level < 1) && Q.IsReady() && Q.IsInRange(target) && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > Q.Range))
             {
                 Q.CastOnUnit(target);
             }
-            // TODO [WIP] E mechanics will be improved
+            
             if (GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && R.Level == 0 && E.IsReady() && (LiveBarrels.Count == 0 || NearestKeg(Player.Position.To2D()).KegObj.Distance(Player) > E.Range)) // 2 keg
             {
                 E.Cast(ePrediction);
@@ -394,11 +394,9 @@ namespace Bangplank
                 }
             }
             //Extend if possible and if the number of enemies is below 3
-            if (Player.GetEnemiesInRange(E.Range).Count < 3)
+            if (Player.GetEnemiesInRange(E.Range).Count < 3 && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
             {
-                if (((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) ||
-                     (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health <3 &&
-                      Player.Level >= 13)) && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false)
+                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3)
                 {
                     if (target != null)
                     {
@@ -406,18 +404,34 @@ namespace Bangplank
                         if (nbar.KegObj.Distance(prediction) < linkRange)
                         {
                             E.Cast(prediction);
-                            if (Player.Level < 13)
+                            if (Player.Level < 7 && nbar.KegObj.Health == 2)
                             {
+                                Utility.DelayAction.Add((int)(1580 - Game.Ping), () =>
+                                {
                                     Q.Cast(nbar.KegObj);
+                                }
+                                   );
                             }
-                            // Faster cast
-                            if (Player.Level >= 13)
+                            if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                             {
-                                Utility.DelayAction.Add((int) (400 - Game.Ping), () =>
+                                Utility.DelayAction.Add((int)(580 - Game.Ping), () =>
+                                {
+                                    Q.Cast(nbar.KegObj);
+                                }
+                                   );
+                            }
+
+                            if (Player.Level >= 13 && nbar.KegObj.Health == 2)
+                            {
+                                Utility.DelayAction.Add((int)(80 - Game.Ping), () =>
                                 {
                                     Q.Cast(nbar.KegObj);
                                 }
                                     );
+                            }
+                            if (nbar.KegObj.Health < 2)
+                            {
+                                Q.Cast(nbar.KegObj);
                             }
                         }
                     }
@@ -489,8 +503,8 @@ namespace Bangplank
             {
                 Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
             }
-            if ((LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) > E.Range) &&
-                E.Instance.Ammo <= Getslider("bangplank.menu.misc.barrelmanager.stacks") && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
+            if ((LiveBarrels.Count == 0 || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player ) > E.Range) &&
+                (E.Instance.Ammo <= Getslider("bangplank.menu.misc.barrelmanager.stacks") || E.Level < 1) && Player.ManaPercent >= Getslider("bangplank.menu.farm.qlhmana"))
             {
                 foreach (var m in minions)
                 {
@@ -536,13 +550,14 @@ namespace Bangplank
                 if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > Q.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
 
+
             // Extended EQ, done but still some bugs remaining, going to fix them #TODO
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
                 if (LiveBarrels.Count == 0) return;             
                 if (nbar == null) return;
                
-                if ((Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 2) || (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health == 2 && Player.Level >= 13))
+                if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3)
                 {
                     if (target != null)
                     {
@@ -551,18 +566,34 @@ namespace Bangplank
                             if (nbar.KegObj.Distance(prediction) < linkRange)
                             {
                                 E.Cast(prediction);
-                                if (Player.Level < 13)
+                                if (Player.Level < 7 && nbar.KegObj.Health == 2)
                                 {
-                                    Q.Cast(nbar.KegObj);
+                                    Utility.DelayAction.Add((int)(1580 - Game.Ping), () =>
+                                    {
+                                        Q.Cast(nbar.KegObj);
+                                    }
+                                       );
                                 }
-                                // Faster cast
-                                if (Player.Level >= 13)
+                                if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                                 {
-                                    Utility.DelayAction.Add((int)(400 - Game.Ping), () =>
+                                    Utility.DelayAction.Add((int)(580 - Game.Ping), () =>
+                                    {
+                                        Q.Cast(nbar.KegObj);
+                                    }
+                                       );
+                                }
+                                
+                                if (Player.Level >= 13 && nbar.KegObj.Health == 2)
+                                {
+                                    Utility.DelayAction.Add((int)(80 - Game.Ping), () =>
                                     {
                                         Q.Cast(nbar.KegObj);
                                     }
                                         );
+                                }
+                                if (nbar.KegObj.Health < 2)
+                                {
+                                    Q.Cast(nbar.KegObj);
                                 }
                             }
                         }
