@@ -408,10 +408,10 @@ namespace Bangplank
                         if (nbar.KegObj.Distance(prediction) < LinkRange)
                         {
                             E.Cast(prediction);
-                            if (Player.Level < 7 )
-                            {
-                                Q.Cast(nbar.KegObj);
-                            }
+                           // if (Player.Level < 7 && nbar.KegObj.Health < 2)
+                           // {
+                            //    Q.Cast(nbar.KegObj);
+                           // }
                             if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                             {
                                 Utility.DelayAction.Add(580 - Game.Ping, () =>
@@ -429,7 +429,7 @@ namespace Bangplank
                                 }
                                     );
                             }
-                            if (nbar.KegObj.Health < 2)
+                            if (nbar.KegObj.Health == 1)
                             {
                                 Q.Cast(nbar.KegObj);
                             }
@@ -547,7 +547,7 @@ namespace Bangplank
                 )
             {
                 if (LiveBarrels.Count == 0) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
-                if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > Q.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
+                if (LiveBarrels.Count >= 1 && nbar.KegObj.Distance(Player) > E.Range) Q.Cast(TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical));
             }
 
 
@@ -566,10 +566,10 @@ namespace Bangplank
                             if (nbar.KegObj.Distance(prediction) < LinkRange)
                             {
                                 E.Cast(prediction);
-                                if (Player.Level < 7 && nbar.KegObj.Health == 2)
-                                {
-                                    Q.Cast(nbar.KegObj);
-                                }
+                               // if (Player.Level < 7 && nbar.KegObj.Health < 2)
+                               // {
+                                //    Q.Cast(nbar.KegObj);
+                               // }
                                 if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                                 {
                                     Utility.DelayAction.Add((int)(580 - Game.Ping), () =>
@@ -587,7 +587,7 @@ namespace Bangplank
                                     }
                                         );
                                 }
-                                if (nbar.KegObj.Health < 2)
+                                if (nbar.KegObj.Health == 1)
                                 {
                                     Q.Cast(nbar.KegObj);
                                 }
@@ -596,7 +596,7 @@ namespace Bangplank
                     }
                 }
             }
-        
+        BarrelManager();
         }
 
         private static void LastHit()
