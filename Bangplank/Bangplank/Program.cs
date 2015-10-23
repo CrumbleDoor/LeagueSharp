@@ -24,7 +24,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.3.5";
+        public static String Version = "1.0.3.6";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -61,7 +61,8 @@ namespace Bangplank
                 comboMenu.AddItem(new MenuItem("bangplank.menu.combo.rmin", "Minimum enemies to cast R").SetTooltip("Minimum enemies to hit with R in combo").SetValue(new Slider(2, 1, 5)));
             
             // Harass Menu
-            var harassMenu = new Menu("Harass", "bangplank.menu.harass");            
+            var harassMenu = new Menu("Harass", "bangplank.menu.harass");
+                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.info", "Use your mixed key for harass"));      
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.q", "Use Q").SetTooltip("If disabled, it won't block EQ usage").SetValue(true));                
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
