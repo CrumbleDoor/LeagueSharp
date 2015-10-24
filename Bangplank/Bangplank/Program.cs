@@ -114,8 +114,8 @@ namespace Bangplank
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.healminmana", "Minimum Mana %").SetTooltip("Minimum mana to use W heal").SetValue(new Slider(35)));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetTooltip("If on, will auto Q to KS").SetValue(true));
-                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(true));
-            miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rksoffinfo", "If R ks off, will tell you if enemy killable"));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(false));
+                miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rksoffinfo", "Ks Notification").SetTooltip("Use it if you want to manually ks, it will show a notification when killable").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.fleekey", "[WIP] Flee").SetValue(new KeyBind(65, KeyBindType.Press)));
             
             // Items Manager Menu
@@ -710,6 +710,7 @@ namespace Bangplank
                         }
                     }
             }
+            
         }
 
         // auto barrel activator
