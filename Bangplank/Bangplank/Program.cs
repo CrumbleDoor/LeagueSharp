@@ -24,7 +24,7 @@ namespace Bangplank
 {
     class Program
     {
-        public static String Version = "1.0.4.1";
+        public static String Version = "1.0.4.4";
         private static String championName = "Gangplank";
         public static Obj_AI_Hero Player;
         private static Menu _menu;
@@ -67,7 +67,7 @@ namespace Bangplank
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.separator1", "Extended EQ:"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.extendedeq", "Enabled").SetValue(true));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructioneq", "Place E near your pos, then wait it will automatically"));
-                harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "place E in range of 1st barrel + Q to harass enemy").SetTooltip("Tip: Place your first barrel in a bush"));
+            harassMenu.AddItem(new MenuItem("bangplank.menu.harass.instructionqe2", "place E in range of 1st barrel + Q to harass enemy"));
                 harassMenu.AddItem(new MenuItem("bangplank.menu.harass.qmana", "Minimum mana to use Q harass").SetTooltip("Minimum mana for Q harass & Extended EQ").SetValue(new Slider(20)));
 
             // Farm Menu
@@ -115,6 +115,7 @@ namespace Bangplank
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.ks", "KillSteal").SetTooltip("If off, won't try to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.qks", "Use Q to KillSteal").SetTooltip("If on, will auto Q to KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rks", "Use R to KillSteal").SetTooltip("If on, will try to KS on the whole map").SetValue(true));
+            miscMenu.AddItem(new MenuItem("bangplank.menu.misc.rksoffinfo", "If R ks off, will tell you if enemy killable"));
                 miscMenu.AddItem(new MenuItem("bangplank.menu.misc.fleekey", "[WIP] Flee").SetValue(new KeyBind(65, KeyBindType.Press)));
             
             // Items Manager Menu
@@ -450,7 +451,7 @@ namespace Bangplank
 
         private static void WaveClear()
         {
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range).Where(m => m.Health > 3).ToList();
+            var minions = MinionManager.GetMinions(Q.Range).Where(m => m.Health > 3).ToList();
             var jungleMobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral).Where(j => j.Health > 3).ToList();
             minions.AddRange(jungleMobs);
            
@@ -487,6 +488,14 @@ namespace Bangplank
                     }
                 }
             }
+            if (Q.IsReady() && jungleMobs.Any() && Player.ManaPercent > Getslider("bangplank.menu.farm.qlhmana") && GetBool("bangplank.menu.farm.qlh"))
+            {
+                Q.CastOnUnit(jungleMobs.FirstOrDefault(j => j.Health < Player.GetSpellDamage(j, SpellSlot.Q)));
+            }
+            if ((GetBool("bangplank.menu.farm.qlh") && minions.Any() && Player.ManaPercent > Getslider("bangplank.menu.farm.qlhmana") && Q.IsReady()) && (E.Instance.Ammo <= Getslider("bangplank.menu.misc.barrelmanager.stacks") || E.Level < 1))
+            {
+                Q.CastOnUnit(minions.FirstOrDefault(m => m.Health < Player.GetSpellDamage(m, SpellSlot.Q)));
+            }
             if (LiveBarrels.Any() || NearestKeg(Player.ServerPosition.To2D()).KegObj.Distance(Player) < Q.Range + 150)
             {
                 var lol =
@@ -513,10 +522,7 @@ namespace Bangplank
                     Player.IssueOrder(GameObjectOrder.AttackUnit, NearestKeg(Player.ServerPosition.To2D()).KegObj);
                 }
             }
-            if (jungleMobs.Any(j => j.Health < Player.GetSpellDamage(j, SpellSlot.Q)) && Player.ManaPercent > Getslider("bangplank.menu.farm.qlhmana"))
-            {
-                 Q.CastOnUnit(jungleMobs.FirstOrDefault(j => j.Health < Player.GetSpellDamage(j, SpellSlot.Q)));
-            }
+           
         }
         
 
@@ -558,8 +564,8 @@ namespace Bangplank
             // Extended EQ, done but still some bugs remaining, going to fix them #TODO
             if (Q.IsReady() && E.IsReady() && GetBool("bangplank.menu.harass.extendedeq") && GetBool("bangplank.menu.misc.barrelmanager.edisabled") == false && Player.ManaPercent >= Getslider("bangplank.menu.harass.qmana"))
             {
-                if (LiveBarrels.Count == 0) return;             
-                if (nbar == null) return;
+                if (!LiveBarrels.Any()) return;             
+                
                
                 if (Player.ServerPosition.Distance(nbar.KegObj.Position) < Q.Range && nbar.KegObj.Health < 3)
                 {
@@ -570,10 +576,7 @@ namespace Bangplank
                             if (nbar.KegObj.Distance(prediction) < LinkRange)
                             {
                                 E.Cast(prediction);
-                               // if (Player.Level < 7 && nbar.KegObj.Health < 2)
-                               // {
-                                //    Q.Cast(nbar.KegObj);
-                               // }
+                               
                                 if (Player.Level < 13 && Player.Level >= 7 && nbar.KegObj.Health == 2)
                                 {
                                     Utility.DelayAction.Add((int)(580 - Game.Ping), () =>
@@ -774,7 +777,7 @@ namespace Bangplank
             {
                 return null;
             }
-            return LiveBarrels.OrderBy(k => k.KegObj.ServerPosition.Distance(pos.To3D())).FirstOrDefault();
+            return LiveBarrels.OrderBy(k => k.KegObj.ServerPosition.Distance(pos.To3D())).FirstOrDefault(k => !k.KegObj.IsDead);
         }
         // Get Values code
         private static bool GetBool(string name)
