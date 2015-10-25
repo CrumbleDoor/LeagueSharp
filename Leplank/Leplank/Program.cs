@@ -33,7 +33,9 @@ namespace Leplank
             Menus.MenuIni();
 
             //Events
-            
+            GameObject.OnCreate += BarrelsManager._OnCreate;
+            Game.OnUpdate += BarrelsManager._OnDelete;
+            Game.OnUpdate += BarrelsManager._DebugZone;
 
         }
 

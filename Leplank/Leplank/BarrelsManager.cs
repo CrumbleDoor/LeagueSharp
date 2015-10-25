@@ -43,10 +43,18 @@ namespace Leplank
                     savedBarrels.RemoveAt(i);
                     return;
                 }
-                Game.PrintChat(giveConnectedBarrelsTo(1).ToString());
+                
             }
 
         }
+
+       //Debug zone (for tests)
+       /*public static void _DebugZone (EventArgs args)
+        {
+            Game.PrintChat(giveConnectedBarrelsTo(1).ToString());
+        }
+        */
+
 
         //Return connected barrels (chain) to a barrel indexes (including itself)
         public static List<int> giveConnectedBarrelsTo(int barrelIndex)
