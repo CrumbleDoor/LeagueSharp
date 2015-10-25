@@ -23,6 +23,7 @@ namespace Leplank
 
         //Saved barrels list (living ones)
         public static List<Barrel> savedBarrels = new List<Barrel>();
+        public static List<List<Barrel>> barrelChains = new List<List<Barrel>>();
 
         //On barrel spawn += 1 barrel
         public static void _OnCreate(GameObject sender, EventArgs args)
@@ -30,7 +31,11 @@ namespace Leplank
             if (sender.Name == "Barrel")
             {
                 savedBarrels.Add(new Barrel(sender as Obj_AI_Minion));
+                chainMangerOnCreate();
+                Game.PrintChat(barrelChains.Count.ToString());
             }
+            
+
         }
 
         //On barrel delete (no health, Game_onDelete have huge delay ~1sec, to put on Game_OnUpdate)
@@ -49,39 +54,49 @@ namespace Leplank
         }
 
        //Debug zone (for tests)
-       /*public static void _DebugZone (EventArgs args)
+       public static void _DebugZone (EventArgs args)
         {
-            Game.PrintChat(giveConnectedBarrelsTo(1).ToString());
+            
+
+            
         }
-        */
+        
 
 
-        //Return connected barrels (chain) to a barrel indexes (including itself)
-        public static List<int> giveConnectedBarrelsTo(int barrelIndex)
+        //Chain manager
+        public static void chainMangerOnCreate()
         {
-            List<int> indexesList = new List<int>();
-            //Loop untill reach the barrelIndex
-            for (int i = 0; i < barrelIndex; i++)
+            //Partie I : On mets le barril dans la chaine connecté à lui (au moins un barril de cette chaine est connecté à lui)
+            Barrel lastBarrelAdded = savedBarrels[savedBarrels.Count-1];
+
+            bool addedAtLeastOnce = false; //il est pas ajouté
+            //Scan la liste à la recherche d'un barril connecté au notre
+            for (int i=0;i<barrelChains.Count;i++) //1) scan les chaines
             {
-                if (i != 0)
+                
+                for (int j=0;j<barrelChains[i].Count;j++) //2 scan les barrils dans la chaine et verifie si on est connecté à un
                 {
-                    for (int k = 0; k < savedBarrels.Count() - 1; k++)
+                    
+                    if (lastBarrelAdded.barrel.Distance(barrelChains[i][j].barrel) <= 680) 
                     {
-                        if (savedBarrels[i].barrel.Distance(BarrelsManager.savedBarrels[k].barrel.Position) <= 680) //680 = range for connection
+                        
+                        //Rajoute à la liste si on y est pas dejà
+                        if (!barrelChains[i].Contains(lastBarrelAdded))
                         {
-                            if (!indexesList.Contains(i)) //Prevent duplication
-                                indexesList.Add(i);
-                            if (k == 0)
-                            {
-                                if (!indexesList.Contains(k))
-                                    indexesList.Add(k);
-                            }
+                            barrelChains[i].Add(lastBarrelAdded);
+                            addedAtLeastOnce = true;
                         }
                     }
                 }
-
             }
-            return indexesList;
+            if(!addedAtLeastOnce) //S'il rentre dans aucune liste on rajoute une nouvelle chaine
+            {
+                barrelChains.Add(new List<Barrel> { lastBarrelAdded });
+            }
+
+            //Partie II netoyyage de la liste de chaines (si un barril existe dans deux liste, on mix les deux chaines)
+           
+
         }
 
         //Return closest barrel to a position
