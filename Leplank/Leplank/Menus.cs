@@ -12,5 +12,6 @@ namespace Leplank
 {
     class Menus
     {
+        int kappa = 123;
     }
 }
