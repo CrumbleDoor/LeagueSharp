@@ -13,7 +13,6 @@ namespace Leplank
 
         public static void MenuIni()
         {
-
             // Main Menu
             _menu = new Menu("Leplank", "Leplank", true);
             // Orbwalker Menu
@@ -107,10 +106,6 @@ namespace Leplank
             _menu.AddSubMenu(drawingMenu);
             _menu.AddToMainMenu();
         }
-
-
-
-
     }
     
 }
