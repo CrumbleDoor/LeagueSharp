@@ -31,6 +31,10 @@ namespace Leplank
             Game.PrintChat("<b><font color='#FF6600'>Leplank</font></b> " + version + " loaded - By <font color='#6666FF'>Brikovich</font> & <font color='#6666FF'>Baballev</font>");
             Game.PrintChat("Don't forget to <font color='#00CC00'><b>Upvote</b></font> <b><font color='#FF6600'>Leplank</font></b> in the Assembly DB if you like it ^_^");
             Menus.MenuIni();
+
+            //Events
+            
+
         }
 
 

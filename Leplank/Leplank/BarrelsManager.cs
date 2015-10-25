@@ -47,7 +47,7 @@ namespace Leplank
             }
 
         }
-        
+
         //Return connected barrels (chain) to a barrel indexes (including itself)
         public static List<int> giveConnectedBarrelsTo(int barrelIndex)
         {
@@ -55,11 +55,11 @@ namespace Leplank
             //Loop untill reach the barrelIndex
             for (int i = 0; i < barrelIndex; i++)
             {
-                if (i > 0)
+                if (i != 0)
                 {
-                    for (int k = 0; k < BarrelsManager.savedBarrels.Count() - 1; k++)
+                    for (int k = 0; k < savedBarrels.Count() - 1; k++)
                     {
-                        if (BarrelsManager.savedBarrels[i].barrel.Distance(BarrelsManager.savedBarrels[k].barrel.Position) <= 680) //680 = range for connection
+                        if (savedBarrels[i].barrel.Distance(BarrelsManager.savedBarrels[k].barrel.Position) <= 680) //680 = range for connection
                         {
                             if (!indexesList.Contains(i)) //Prevent duplication
                                 indexesList.Add(i);
@@ -75,7 +75,7 @@ namespace Leplank
             }
             return indexesList;
         }
-        
+
         //Return closest barrel to a position
         public static Barrel closestToPosition(Vector3 position)
         {
@@ -102,7 +102,7 @@ namespace Leplank
             double vX = position.X - barrelToConnect.barrel.Position.X;
             double vY = position.Y - barrelToConnect.barrel.Position.Y;
             double magV = Math.Sqrt(vX * vX + vY * vY);
-            double aX = Math.Round(barrelToConnect.barrel.Position.X + vX / magV * - 680); //680 = range for connection
+            double aX = Math.Round(barrelToConnect.barrel.Position.X + vX / magV * -680); //680 = range for connection
             double aY = Math.Round(barrelToConnect.barrel.Position.Y + vY / magV * 680);
             Vector2 newPosition = new Vector2(Convert.ToInt32(aX), Convert.ToInt32(aY));
             return newPosition;
