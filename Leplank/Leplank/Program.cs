@@ -16,7 +16,7 @@ namespace Leplank
     {
         static void Main(string[] args)
         {
-
+            Game.PrintChat("ohayo - test");
         }
     }
 }
